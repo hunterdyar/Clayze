@@ -10,7 +10,17 @@ Git must be installed on the system in order for the packages to install and upd
 - URP (Universal Render Pipelinne) is recommended, but not required.
 
 ## Installing the Package.
-1. Select 'Window > Package Manager'
+First, add the Scoped Registry for this project's dependencies to resolve. Then add this .git project as a package.
+1. Go to Project Settings > Package Manager. 
+2. Add a scoped registry:
+   - Name: `package.openupm.com`
+   - URL: `https://package.openupm.com`
+   - Scopes: `com.endel.nativewebsocket`, `com.mackysoft.serializereference-extensions`
+3. Apply. Then you can close this window.
+
+![Scoped Registry Example](./Documentation~/scoped.png)
+
+2. Select 'Window > Package Manager'
 2. Click on the plus icon, and choose 'Add Package from git URL...'.
 3. Enter `https://github.com/hunterdyar/Clayze.git`
 4. This will install the Clayze Package, the [Native WebSockets](https://github.com/endel/NativeWebSocket) package, and the [Serialize Reference Extensions](https://github.com/mackysoft/Unity-SerializeReferenceExtensions) package.
