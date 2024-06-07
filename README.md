@@ -15,7 +15,9 @@ First, add the Scoped Registry for this project's dependencies to resolve. Then 
 2. Add a scoped registry:
    - Name: `package.openupm.com`
    - URL: `https://package.openupm.com`
-   - Scopes: `com.endel.nativewebsocket`, `com.mackysoft.serializereference-extensions`
+   - Add both of the following scopes (push the little + button)
+      - `com.endel.nativewebsocket`
+      - `com.mackysoft.serializereference-extensions`
 3. Apply. Then you can close this window.
 
 ![Scoped Registry Example](./Documentation~/scoped.png)
