@@ -8,5 +8,6 @@
 		Clear = 3,
 		Line = 4,
 		AABox = 5,
+		Box = 6,
 	}
 }
