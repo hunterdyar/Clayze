@@ -10,9 +10,19 @@
     "licensesUrl": "https://mit-license.org/",
     "resolutionStrategy": "highest",
     "dependencies": {
-        "com.endel.nativewebsocket": "https://github.com/endel/NativeWebSocket.git#upm",
-        "com.mackysoft.serializereference-extensions": "https://github.com/mackysoft/Unity-SerializeReferenceExtensions.git?path=Assets/MackySoft/MackySoft.SerializeReferenceExtensions"
+        "com.endel.nativewebsocket": "1.1.4",
+        "com.mackysoft.serializereference-extensions": "1.3.1"
     },
+    "scopedRegistries": [
+        {
+            "name": "package.openupm.com",
+            "url": "https://package.openupm.com",
+            "scopes": [
+                "com.endel.nativewebsocket",
+                "com.mackysoft.serializereference-extensions"
+            ]
+        }
+    ],
     "keywords": [
         "Modeling",
         "Multiplayer",
