@@ -1,0 +1,249 @@
+﻿using System;
+using System.Collections.Generic;
+using Connection;
+using UnityEngine;
+using NativeWebSocket;
+using Models.Shared;
+
+namespace Marching.Operations
+{
+	//this class will also handle "compacting" the base of operations down to a sampleOp.
+	[CreateAssetMenu(fileName = "Op Collection",menuName = "Clayze/OperationCollection",order = 1)]
+	public class OperationCollection : ScriptableObject
+	{
+		//Network
+		public ConnectionStatus ConnectionStatus = ConnectionStatus.Idle;
+		public string connectionURL;
+		public string localStatus = "";
+		private WebSocket _websocket;
+		private int operationWaitingForIDIndex = -1;
+		
+		[Tooltip("Time in seconds after connection failure to attempt again.")]
+		public int reconnectionDelay = 30;
+
+
+		//List Things
+		public Action<IOperation> OperationChanged;
+		public Action ForceRefresh;
+		public List<IOperation> Operations => _operations;
+		[SerializeReference, SubclassSelector]
+		private List<IOperation> _operations = new List<IOperation>();
+
+		public void InitAndConnect()
+		{
+			ConnectionStatus = ConnectionStatus.Idle;
+			localStatus = "Initialized";
+			operationWaitingForIDIndex = -1;
+			_websocket = new WebSocket(connectionURL);
+
+			_websocket.OnOpen += () =>
+			{
+				Debug.Log("Connection open!");
+				ConnectionStatus = ConnectionStatus.Connected;
+				//connected! Let's clear what we have and update from the server.
+				_websocket.Send(new byte[] { (byte)MessageType.GetAll });
+			};
+
+			_websocket.OnError += (e) => { Debug.Log("Error! " + e); };
+
+			_websocket.OnClose += (e) =>
+			{
+				Debug.Log($"Connection closed! {e}");
+				this.ConnectionStatus = ConnectionStatus.Disconnected;
+			};
+
+			_websocket.OnMessage += OnReceiveFromServer;
+
+			ConnectionStatus = ConnectionStatus.AttemptingToConnect;
+			_websocket.Connect();
+		}
+
+		private void OnReceiveFromServer(byte[] data)
+		{
+			var messageType = (MessageType)data[0];
+			switch (messageType)
+			{
+				case MessageType.Add:
+					AddOperationFromServer(data,1);
+					break;
+				case MessageType.IDReply:
+					OnIDReplyFromServer(data);
+					break;
+				case MessageType.Echo:
+					Debug.Log("Echo Received.");
+					break;
+				case MessageType.GetAll:
+					_operations.Clear();
+					AddOperationsFromServer(data);
+					//fire off event.
+					break;
+				case MessageType.Clear:
+					_operations.Clear();
+					ForceRefresh?.Invoke();
+					break;
+				default:
+					Debug.LogError($"{messageType} not handled by client.");
+					break;
+			}
+		}
+
+		private void AddOperationsFromServer(byte[] data)
+		{
+			var offset = 1;//the first byte is the type of message, here it's "get all"
+			int consumed = 0;
+			while (offset < data.Length)
+			{
+				consumed = AddOperationFromServer(data,offset,false);
+				offset += consumed;
+			}
+			//todo: send hard refresh.
+			ForceRefresh?.Invoke();
+		}
+
+		private void OnIDReplyFromServer(byte[] data)
+		{
+			if (operationWaitingForIDIndex < 0)
+			{
+				Debug.LogError("Got IDReply but no message waiting! Uh oh, bad state!");
+				return;
+			}
+			else
+			{
+				var intbytes = new byte[4];
+				if (!BitConverter.IsLittleEndian) //uh, shouldn't we just know what we get from the server?
+				{
+					intbytes = new[] { data[4], data[3], data[2], data[1] };
+				}
+				else
+				{
+					intbytes = new[] { data[1], data[2], data[3], data[4] };
+				}
+
+				_operations[operationWaitingForIDIndex].SetID(BitConverter.ToUInt32(intbytes));
+				operationWaitingForIDIndex = -1;
+			}
+
+			localStatus = "Idle";
+		}
+
+		
+		/// <summary>
+		/// Called when we receive an "add" from the server with the byte data.
+		/// </summary>
+		public int AddOperationFromServer(byte[] data, int startOffset, bool sendUpdate = true)
+		{
+			var op = OperationSerializer.FromBytes(data, startOffset, out var bytesConsumed);//skip the first byte used to determine the type of message.
+			if (op == null)
+			{
+				//something isn't handled yet. e.g. "pass".
+				return 0;
+			}
+			_operations.Add(op);
+			if (sendUpdate)
+			{
+				OperationChanged?.Invoke(op);
+			}
+
+			return bytesConsumed;
+		}
+
+		//Close the connection. todo: rename
+		public void Stop()
+		{
+			localStatus = "Stopped";
+			if (_websocket != null)
+			{
+				_websocket.DispatchMessageQueue();
+				_websocket.Close();
+			}
+		}
+
+		public void DispatchMessageQueue()
+		{
+			if (_websocket != null)
+			{
+				_websocket.DispatchMessageQueue();
+			}
+		}
+		
+		//Local add!
+		public void Add(IOperation op, bool local = true)
+		{
+			//todo: check if bounds are out of bounds of the volume. 
+			//we should do that elsewhere and it should never hit this list.
+			localStatus = "Add Local, Need ID from server...";
+			_operations.Add(op);
+			//count.
+			operationWaitingForIDIndex = _operations.IndexOf(op);
+			var m = OperationSerializer.ToBytes(op);
+			var packet = new byte[m.Length + 1];
+			m.CopyTo(packet, 1);
+			packet[0] = (byte)MessageType.Add;
+			if (ConnectionStatus == ConnectionStatus.Connected)
+			{
+				//must be local only.... but we should check that.
+				_websocket.Send(packet);
+			}
+			else
+			{
+				Debug.LogWarning("Local only add!");
+			}
+
+			OperationChanged?.Invoke(op);//instantly update the local client, while we wait for an ID.
+		}
+
+		public IEnumerator<IOperation> GetEnumerator()
+		{
+			return _operations.GetEnumerator();
+		}
+
+		[ContextMenu("Clear")]
+		public void Clear()
+		{
+			_operations.Clear();
+			_websocket.Send(new byte[]{(byte)MessageType.Clear});
+			ForceRefresh?.Invoke();
+			//UH gotta tell volume to hard-refresh
+		}
+
+		public void Remove(IOperation op, bool local = true)
+		{
+			_operations.Remove(op);
+			//I guess this would get us to resample this region so....
+			OperationChanged?.Invoke(op);
+
+		}
+
+		public void RemoveAt(int index, bool local = true)
+		{
+			_operations.RemoveAt(index);
+			//UH gotta tell volume to hardrefresh
+		}
+
+		public void UpdateValue(IOperation oldVal, IOperation newVal, bool local = true)
+		{
+			//todo: test that this preserves order correctly.
+			var i = _operations.IndexOf(oldVal);
+			_operations.RemoveAt(i);
+			_operations.Insert(i,newVal);
+			
+			if (oldVal.OperationWorldBounds() != newVal.OperationWorldBounds())
+			{
+				OperationChanged?.Invoke(oldVal);
+			}
+
+			OperationChanged?.Invoke(newVal);
+		}
+
+		public void Optimize()
+		{
+			//First, loop for operations whose bounding areas are the entire area, like ClearOp. Remove everything before ClearOp.
+			
+			//Remove Operations that are entirely contained inside of later operations.
+			//Start at the end of the list, and keep a boundingArea (?? list of points? boundingBoxes?)
+			//loop towards the start, and if an operation has all of it's points inside of this area, remove it. Else, add it's points to this set.
+			
+			
+		}
+	}
+}

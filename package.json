@@ -1,0 +1,34 @@
+{
+    "name": "com.hdyar.clayze",
+    "version": "0.0.1",
+    "displayName": "Clayze - Multiuser 3D Volume Manipulation",
+    "description": "Syncronizes and renders lists of SDF Operations",
+    "unity": "2022.3",
+    "documentationUrl": "https://github.com/hunterdyar/Clayze-Package/",
+    "changelogUrl": "https://github.com/hunterdyar/Clayze-Package/",
+    "license": "MIT",
+    "licensesUrl": "https://mit-license.org/",
+    "resolutionStrategy": "highest",
+    "dependencies": {
+        "com.endel.nativewebsocket": "https://github.com/endel/NativeWebSocket.git#upm",
+        "com.mackysoft.serializereference-extensions": "https://github.com/mackysoft/Unity-SerializeReferenceExtensions.git?path=Assets/MackySoft/MackySoft.SerializeReferenceExtensions",
+        "com.unity.render-pipelines.universal": "14.0.0",
+        "com.unity.visualeffectgraph": "14.0.0"
+    },
+    "keywords": [
+        "Modeling",
+        "Multiplayer",
+        "Websockets",
+        "SDF"
+    ],
+    "author": {
+        "name": "Hugh Dyar",
+        "email": "me@hdyar.com",
+        "url": "https://www.hdyar.com"
+    },
+    "samples":[{
+        "displayName": "Basic Usage",
+        "description": "Simple configuration",
+        "path": "Samples~/Basic"
+    }]
+}
