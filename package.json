@@ -11,9 +11,7 @@
     "resolutionStrategy": "highest",
     "dependencies": {
         "com.endel.nativewebsocket": "https://github.com/endel/NativeWebSocket.git#upm",
-        "com.mackysoft.serializereference-extensions": "https://github.com/mackysoft/Unity-SerializeReferenceExtensions.git?path=Assets/MackySoft/MackySoft.SerializeReferenceExtensions",
-        "com.unity.render-pipelines.universal": "14.0.0",
-        "com.unity.visualeffectgraph": "14.0.0"
+        "com.mackysoft.serializereference-extensions": "https://github.com/mackysoft/Unity-SerializeReferenceExtensions.git?path=Assets/MackySoft/MackySoft.SerializeReferenceExtensions"
     },
     "keywords": [
         "Modeling",
