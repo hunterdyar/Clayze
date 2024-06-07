@@ -95,6 +95,10 @@ namespace Marching.Operations
 			{
 				consumed = AddOperationFromServer(data,offset,false);
 				offset += consumed;
+				if (consumed == 0)
+				{
+					break;//uh oh!
+				}
 			}
 			//todo: send hard refresh.
 			ForceRefresh?.Invoke();
@@ -135,7 +139,7 @@ namespace Marching.Operations
 			var op = OperationSerializer.FromBytes(data, startOffset, out var bytesConsumed);//skip the first byte used to determine the type of message.
 			if (op == null)
 			{
-				//something isn't handled yet. e.g. "pass".
+				//some operation isn't handled yet. e.g. "pass".
 				return 0;
 			}
 			_operations.Add(op);

@@ -7,13 +7,27 @@ namespace Marching.Operations
 	{
 		//byte 0 is the operation name
 		//byte 1 is the operation type.
-		//the rest is per operation.
+		//the rest is unique to each operation.
 		
-		
+		public static byte[] ToBytes(this IOperation op)
+		{
+			switch (op.OpName)
+			{
+				case OperationName.Sphere: 
+					return ((SphereOp)op).ToBytes();
+				case OperationName.Line:
+					return ((LineOp)op).ToBytes();
+					
+			}
+			return Array.Empty<byte>();
+		}
+
+		#region OperationsToBytesOverloads
+
 		public static byte[] ToBytes(this SphereOp op)
 		{
-			int floatSize = 4;
-			byte[] data = new byte[2 + floatSize * 4];
+			//2 byte headedr (1), 4 floats(4) = 15
+			byte[] data = new byte[2 + 4 * 4];
 			data[0] = (byte)OperationName.Sphere;
 			data[1] = (byte)op.OperationType;
 			//todo: utility function for serializing vector3s
@@ -28,17 +42,23 @@ namespace Marching.Operations
 			return data;
 		}
 
-		public static byte[] ToBytes(this IOperation op)
+		public static byte[] ToBytes(this LineOp op)
 		{
-			if (op.OpName == OperationName.Sphere)
-			{
-				//todo: what's the casting penalty compared to a big switch statement?
-				return ((SphereOp)op).ToBytes();
-			}
-
-			return Array.Empty<byte>();
+			byte[] data = new byte[2 + 4 * 7];
+			data[0] = (byte)OperationName.Sphere;
+			data[1] = (byte)op.OperationType;
+			//todo: utility function for serializing vector3s
+			BitConverter.GetBytes(op.PointA.x).CopyTo(data, 2);
+			BitConverter.GetBytes(op.PointA.y).CopyTo(data, 6);
+			BitConverter.GetBytes(op.PointA.z).CopyTo(data, 10);
+			BitConverter.GetBytes(op.PointA.x).CopyTo(data, 14);
+			BitConverter.GetBytes(op.PointA.y).CopyTo(data, 18);
+			BitConverter.GetBytes(op.PointA.z).CopyTo(data, 22);
+			BitConverter.GetBytes(op.Radius).CopyTo(data, 26);
+			return data;
 		}
 
+		#endregion
 		public static IOperation FromBytes(byte[] data, int start, out int bytesConsumed)
 		{
 			bytesConsumed = 0;
@@ -49,6 +69,7 @@ namespace Marching.Operations
 			//[servermessagetype:1][opUniqueID:4][opName:1][OpType:1][ specific to opName ]
 			
 			var opID = (UInt32)BitConverter.ToUInt32(data, start);
+			//offset is array coordinate.
 			int offset = start + 4;
 			OperationName op = (OperationName)data[offset];
 			offset++;
@@ -72,6 +93,25 @@ namespace Marching.Operations
 					sop.UniqueID = opID;
 					bytesConsumed = offset - start;
 					return sop;
+				case OperationName.Line:
+					var posAX = BitConverter.ToSingle(new ArraySegment<byte>(data, offset, 4));
+					offset += 4;
+					var posAY = BitConverter.ToSingle(new ArraySegment<byte>(data, offset, 4));
+					offset += 4;
+					var posAZ = BitConverter.ToSingle(new ArraySegment<byte>(data, offset, 4));
+					offset += 4;
+					var posBX = BitConverter.ToSingle(new ArraySegment<byte>(data, offset, 4));
+					offset += 4;
+					var posBY = BitConverter.ToSingle(new ArraySegment<byte>(data, offset, 4));
+					offset += 4;
+					var posBZ = BitConverter.ToSingle(new ArraySegment<byte>(data, offset, 4));
+					offset += 4;
+					var radius = BitConverter.ToSingle(new ArraySegment<byte>(data, offset, 4));
+					offset += 4;
+					var lop = new LineOp(new Vector3(posAX, posAY, posAZ),new Vector3(posBX,posBY,posBZ), radius, opType);
+					lop.UniqueID = opID;
+					bytesConsumed = offset - start;
+					return lop;
 			}
 
 			return null;
