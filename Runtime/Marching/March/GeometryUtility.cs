@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System;
+using UnityEngine;
 
 namespace Marching
 {
@@ -29,6 +30,12 @@ namespace Marching
 		{
 			float h = Mathf.Max(k - Mathf.Abs(a - b), 0f) / k;
 			return Mathf.Min(a, b) - h * h * k * (1f / 4f);
+		}
+
+		public static float SmooothMinExponential(float a, float b, float k = 32)
+		{
+			float res = (float)Math.Exp(-k * a) + (float)Mathf.Exp(-k * b);
+			return -Mathf.Log(Mathf.Max(0.0001f, res)) / k;
 		}
 
 		public static float DistanceFromCamera(Vector3 position)

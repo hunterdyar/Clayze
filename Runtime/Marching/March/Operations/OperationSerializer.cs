@@ -17,6 +17,9 @@ namespace Marching.Operations
 					return ((SphereOp)op).ToBytes();
 				case OperationName.Line:
 					return ((LineOp)op).ToBytes();
+				case OperationName.AABox:
+					return ((AlignedBoxOp)op).ToBytes();
+
 					
 			}
 			return Array.Empty<byte>();
@@ -57,6 +60,22 @@ namespace Marching.Operations
 			BitConverter.GetBytes(op.Radius).CopyTo(data, 26);
 			return data;
 		}
+
+		public static byte[] ToBytes(this AlignedBoxOp op)
+		{
+			byte[] data = new byte[2 + 4 * 6];
+			data[0] = (byte)OperationName.Sphere;
+			data[1] = (byte)op.OperationType;
+			//todo: utility function for serializing vector3s
+			BitConverter.GetBytes(op.Center.x).CopyTo(data, 2);
+			BitConverter.GetBytes(op.Center.y).CopyTo(data, 6);
+			BitConverter.GetBytes(op.Center.z).CopyTo(data, 10);
+			BitConverter.GetBytes(op.Size.x).CopyTo(data, 14);
+			BitConverter.GetBytes(op.Size.y).CopyTo(data, 18);
+			BitConverter.GetBytes(op.Size.z).CopyTo(data, 22);
+			return data;
+		}
+
 
 		#endregion
 		public static IOperation FromBytes(byte[] data, int start, out int bytesConsumed)
@@ -112,6 +131,22 @@ namespace Marching.Operations
 					lop.UniqueID = opID;
 					bytesConsumed = offset - start;
 					return lop;
+				case OperationName.AABox:
+					var cX = BitConverter.ToSingle(new ArraySegment<byte>(data, offset, 4));
+					offset += 4;
+					var cY = BitConverter.ToSingle(new ArraySegment<byte>(data, offset, 4));
+					offset += 4;
+					var cZ = BitConverter.ToSingle(new ArraySegment<byte>(data, offset, 4));
+					offset += 4;
+					var sX = BitConverter.ToSingle(new ArraySegment<byte>(data, offset, 4));
+					offset += 4;
+					var sY = BitConverter.ToSingle(new ArraySegment<byte>(data, offset, 4));
+					offset += 4;
+					var sZ = BitConverter.ToSingle(new ArraySegment<byte>(data, offset, 4));
+					offset += 4;
+					var bop = new AlignedBoxOp(new Vector3(cX, cY, cZ), new Vector3(sX, sY, sZ), opType, opID);
+					bytesConsumed = offset - start;
+					return bop;
 			}
 
 			return null;

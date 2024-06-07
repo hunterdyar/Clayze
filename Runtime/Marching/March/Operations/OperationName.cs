@@ -7,5 +7,6 @@
 		SDF = 2,
 		Clear = 3,
 		Line = 4,
+		AABox = 5,
 	}
 }
