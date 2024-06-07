@@ -11,7 +11,8 @@
     "resolutionStrategy": "highest",
     "dependencies": {
         "com.endel.nativewebsocket": "1.1.4",
-        "com.mackysoft.serializereference-extensions": "1.3.1"
+        "com.mackysoft.serializereference-extensions": "1.3.1",
+        "com.unity.mathematics": "1.2.6"
     },
     "keywords": [
         "Modeling",
