@@ -13,13 +13,23 @@ public class Volume : MonoBehaviour
     public Action<Vector3Int,Vector3Int> OnChange;
 
     //todo: Define in usable units: world size and resolution, then calculate size.
-    public int TotalPointCoint => Size * Size * Size;
+    public int TotalPointCount => Size * Size * Size;
     
+    /// <summary>
+    /// The Size, in voxels, of each edge. Volumes are always square.
+    /// </summary>
     public int Size => _size;
     [SerializeField][Min(2)] private int _size;
     public float pointsPerUnit = 1;
+    /// <summary>
+    /// Operation Objects are for testing, and may be removed in the future. They might be useful for previewing operations, but their data will never be synced over the network.
+    /// </summary>
     public OperationObject[] operationObjects;
-
+    /// <summary>
+    /// Forces Perimeter of volume to always be 1. Makes it so the volume does not clip, but "closes" it's shape at the outer edges.
+    /// </summary>
+    public bool Enclosed;
+    
     private float _f;
     private float4[] data;
 
@@ -77,6 +87,12 @@ public class Volume : MonoBehaviour
     {
         //this needs to sample the point across all operations. 
         //foreach operation... point...
+        
+        if (Enclosed && (x == 0 || x == _size || y == 0 || y == _size || z == 0 || z == _size))
+        {
+            return 1;
+        }
+        
         _f = 1;
         foreach (var operation in operationObjects)
         {
@@ -85,8 +101,6 @@ public class Volume : MonoBehaviour
             {
                 continue;
             }
-            // _f = _f + operation.Sample(VolumeToWorld(x,y,z));
-            //_f = GeometryUtility.SmoothMinCubicPolynomial(_f, operation.Sample(VolumeToWorld(x, y, z)), 0.1f);
             operation.Sample(VolumeToWorld(x, y, z),ref _f);
         }
 

@@ -14,4 +14,4 @@ Git must be installed on the system in order for the packages to install and upd
 2. Click on the plus icon, and choose 'Add Package from git URL...'.
 3. Enter `https://github.com/hunterdyar/Clayze.git`
 4. This will install the Clayze Package, the [Native WebSockets](https://github.com/endel/NativeWebSocket) package, and the [Serialize Reference Extensions](https://github.com/mackysoft/Unity-SerializeReferenceExtensions) package.
-5. (Optional) Select the Clayze package in the Package Manager, and choose 'Samples', then import the 'Basic Usage' sample. Open anr run the BasicClayzeExample scene.
+5. (Optional) Select the Clayze package in the Package Manager, and choose 'Samples', then import the 'Basic Usage' sample. Open and run the BasicClayzeExample scene.

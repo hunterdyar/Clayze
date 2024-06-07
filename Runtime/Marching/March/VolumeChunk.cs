@@ -111,7 +111,7 @@ namespace Marching
 
 		void CreateBuffers()
 		{
-			int numPoints = _volume.TotalPointCoint;
+			int numPoints = _volume.TotalPointCount;
 			int voxelsPerAxis = _volume.Size - 1;//points are volume determined
 			int numVoxels = voxelsPerAxis * voxelsPerAxis * voxelsPerAxis;
 			int maxTriangleCount = numVoxels * 5;//5 is max triangles per cube march shape... I believe.
@@ -166,7 +166,7 @@ namespace Marching
 			//Size
 		}
 
-		public void ConfigureThreadsPerAxis()
+		private void ConfigureThreadsPerAxis()
 		{
 			int voxelsPerAxis = Size - 1; //hello, fence post
 			int threadGroupSize = 1;
@@ -206,7 +206,7 @@ namespace Marching
             }
 		}
 
-		public IEnumerator CreateMesh(bool asyncReadback)
+		private IEnumerator CreateMesh(bool asyncReadback)
 		{
 			//todo: use a graphics fence to stop the gpu to wait for the cpu?
 			

@@ -74,7 +74,7 @@ namespace Marching
 					// 	float s = (surfaceLevel - v1.w) / (v2.w - v1.w);
 					// 	float t = (1 - smoothness) * 0.5 + s * smoothness;
 					// 	return v1.xyz + t * (v2.xyz - v1.xyz); }
-		var c = GetChunkForWorldPoint(worldPos, out var local);
+			var c = GetChunkForWorldPoint(worldPos, out var local);
 			if (c != null)
 			{
 				point = c.GetPoint(local);
