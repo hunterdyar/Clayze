@@ -2,6 +2,7 @@ using UnityEngine;
 
 namespace Marching.Operations
 {
+	[System.Serializable]
 	public class AlignedBoxOp : IOperation
 	{
 		public OperationName OpName => OperationName.AABox;

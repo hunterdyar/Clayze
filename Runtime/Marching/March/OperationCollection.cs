@@ -1,9 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using Connection;
 using UnityEngine;
 using NativeWebSocket;
 using Models.Shared;
+using UnityEngine.Assertions;
 
 namespace Marching.Operations
 {
@@ -16,15 +18,14 @@ namespace Marching.Operations
 		public string connectionURL;
 		public string localStatus = "";
 		private WebSocket _websocket;
-		private int operationWaitingForIDIndex = -1;
-		
+		private Queue<int> _operationsWaitingForIndex = new Queue<int>();
 		[Tooltip("Time in seconds after connection failure to attempt again.")]
 		public int reconnectionDelay = 30;
 
-
 		//List Things
-		public Action<IOperation> OperationChanged;
+		public Action<IOperation> OperationChanged;//changed or added.
 		public Action ForceRefresh;
+		
 		public List<IOperation> Operations => _operations;
 		[SerializeReference, SubclassSelector]
 		private List<IOperation> _operations = new List<IOperation>();
@@ -33,7 +34,6 @@ namespace Marching.Operations
 		{
 			ConnectionStatus = ConnectionStatus.Idle;
 			localStatus = "Initialized";
-			operationWaitingForIDIndex = -1;
 			_websocket = new WebSocket(connectionURL);
 
 			_websocket.OnOpen += () =>
@@ -66,6 +66,9 @@ namespace Marching.Operations
 				case MessageType.Add:
 					AddOperationFromServer(data,1);
 					break;
+				case MessageType.Remove:
+					RemoveOperationFromServer(data);
+					break;
 				case MessageType.IDReply:
 					OnIDReplyFromServer(data);
 					break;
@@ -87,6 +90,26 @@ namespace Marching.Operations
 			}
 		}
 
+		private void RemoveOperationFromServer(byte[] data)
+		{
+			var intbytes = new byte[4];
+			if (!BitConverter.IsLittleEndian) //uh, shouldn't we just know what we get from the server?
+			{
+				intbytes = new[] { data[4], data[3], data[2], data[1] };
+			}
+			else
+			{
+				intbytes = new[] { data[1], data[2], data[3], data[4] };
+			}
+
+			uint removeID = BitConverter.ToUInt32(intbytes);
+			var removeIndex =_operations.FindIndex(x => x.UniqueID == removeID);
+			var op = _operations[removeIndex];
+			_operations.RemoveAt(removeIndex);
+			//even though the operation is removed, the changed is just a fresh within the worldbounds of the op.
+			OperationChanged?.Invoke(op);
+		}
+
 		private void AddOperationsFromServer(byte[] data)
 		{
 			var offset = 1;//the first byte is the type of message, here it's "get all"
@@ -106,7 +129,7 @@ namespace Marching.Operations
 
 		private void OnIDReplyFromServer(byte[] data)
 		{
-			if (operationWaitingForIDIndex < 0)
+			if (_operationsWaitingForIndex.Count < 0)
 			{
 				Debug.LogError("Got IDReply but no message waiting! Uh oh, bad state!");
 				return;
@@ -123,8 +146,9 @@ namespace Marching.Operations
 					intbytes = new[] { data[1], data[2], data[3], data[4] };
 				}
 
-				_operations[operationWaitingForIDIndex].SetID(BitConverter.ToUInt32(intbytes));
-				operationWaitingForIDIndex = -1;
+				var waiting = _operationsWaitingForIndex.Dequeue();
+				_operations[waiting].SetID(BitConverter.ToUInt32(intbytes));
+				waiting = -1;
 			}
 
 			localStatus = "Idle";
@@ -177,8 +201,12 @@ namespace Marching.Operations
 			//we should do that elsewhere and it should never hit this list.
 			localStatus = "Add Local, Need ID from server...";
 			_operations.Add(op);
-			//count.
-			operationWaitingForIDIndex = _operations.IndexOf(op);
+			int opindex = _operations.Count - 1;
+		#if UNITY_EDITOR
+			//weird bug chasing. i fixed it but just testing in case it reappears
+			Assert.AreEqual(_operations.IndexOf(op),opindex);
+		#endif
+			_operationsWaitingForIndex.Enqueue(opindex);
 			var m = OperationSerializer.ToBytes(op);
 			var packet = new byte[m.Length + 1];
 			m.CopyTo(packet, 1);

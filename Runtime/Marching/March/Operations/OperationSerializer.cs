@@ -21,6 +21,8 @@ namespace Marching.Operations
 					return ((AlignedBoxOp)op).ToBytes();
 				case OperationName.Box:
 					return ((BoxOp)op).ToBytes();
+				case OperationName.SDF:
+					return ((SDFOperation)op).ToBytes();
 			}
 			return Array.Empty<byte>();
 		}
@@ -92,6 +94,40 @@ namespace Marching.Operations
 			BitConverter.GetBytes(op.Rotation.y).CopyTo(data, 30);
 			BitConverter.GetBytes(op.Rotation.z).CopyTo(data, 34);
 			BitConverter.GetBytes(op.Rotation.w).CopyTo(data, 38);
+			return data;
+		}
+
+		public static byte[] ToBytes(this SDFOperation op)
+		{
+			int transformSize = (4 * 4) * 4;//matrix 4x4 of floats
+			int floatsSize = op.Width * op.Height * op.Depth;
+			int size = 2 + transformSize + 2 + 2 + 2 + floatsSize * 4;
+			byte[] data = new byte[size];
+			data[0] = (byte)OperationName.SDF;
+			data[1] = (byte)op.OperationType;
+			int offset = 2;
+			//transform
+			for (int i = 0; i < 4 * 4; i++)
+			{
+				BitConverter.GetBytes(op.Transform[i]).CopyTo(data, offset);
+				offset += 4;
+			}
+			//array size
+			BitConverter.GetBytes(op.Width).CopyTo(data,offset);
+			offset += 2;
+			BitConverter.GetBytes(op.Height).CopyTo(data, offset);
+			offset += 2;
+			BitConverter.GetBytes(op.Depth).CopyTo(data, offset);
+			offset += 2;
+			
+			//values
+			for (int i = 0; i < floatsSize; i++)
+			{
+				BitConverter.GetBytes(op.Points[i]).CopyTo(data, offset);
+				offset += 4;
+			}
+			//Buffer.BlockCopy(op.Points,0,data,offset,floatsSize);
+
 			return data;
 		}
 
@@ -193,6 +229,31 @@ namespace Marching.Operations
 						opType, opID);
 					bytesConsumed = offset - start;
 					return bop;
+				case OperationName.SDF:
+					Matrix4x4 m = new Matrix4x4();
+					//transform
+					for (int i = 0; i < 4 * 4; i++)
+					{
+						m[i] = BitConverter.ToSingle(new ArraySegment<byte>(data, offset, 4));
+						offset += 4;
+					}
+					short width = BitConverter.ToInt16(new ArraySegment<byte>(data, offset, 2));
+					offset += 2;
+					short height = BitConverter.ToInt16(new ArraySegment<byte>(data, offset, 2));
+					offset += 2;
+					short depth = BitConverter.ToInt16(new ArraySegment<byte>(data, offset, 2));
+					offset += 2;
+					int floatsSize = width * height * depth;
+					var points = new float[floatsSize];
+					for (int i = 0; i < floatsSize; i++)
+					{
+						points[i] = BitConverter.ToSingle(new ArraySegment<byte>(data, offset, 4));
+						offset += 4;
+					}
+					//Buffer.BlockCopy(data, offset, points, 0, floatsSize*4);
+					SDFOperation sdfOperation = new SDFOperation(m, width, height, depth, points,opType);
+					bytesConsumed = offset - start;
+					return sdfOperation;
 			}
 
 			return null;

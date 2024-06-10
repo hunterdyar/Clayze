@@ -7,7 +7,7 @@ Git must be installed on the system in order for the packages to install and upd
 
 ## Unity Project
 - Clayze is developed with Unity 2022.3, and should work with this 2022 or newer.
-- URP (Universal Render Pipelinne) is recommended, but not required.
+- URP (Universal Render Pipelinne) is recommended, as the SDF Bake tool is part of the VFX graph. It is not currently required to run.
 
 ## Installing the Package.
 First, add the Scoped Registry for this project's dependencies to resolve. Then add this .git project as a package.

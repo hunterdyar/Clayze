@@ -2,6 +2,7 @@ using UnityEngine;
 
 namespace Marching.Operations
 {
+	[System.Serializable]
 	public class LineOp : IOperation
 	{
 		public OperationName OpName => OperationName.Line;

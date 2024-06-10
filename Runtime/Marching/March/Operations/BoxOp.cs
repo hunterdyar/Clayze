@@ -2,6 +2,7 @@ using UnityEngine;
 
 namespace Marching.Operations
 {
+	[System.Serializable]
 	public class BoxOp : IOperation
     {
 	    private Matrix4x4 _samplePointTransformation;
