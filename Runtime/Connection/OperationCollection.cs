@@ -1,13 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using Connection;
+using Clayze.Connection;
+using Clayze.Marching.Operations;
 using UnityEngine;
 using NativeWebSocket;
-using Models.Shared;
 using UnityEngine.Assertions;
 
-namespace Marching.Operations
+namespace Clayze
 {
 	//this class will also handle "compacting" the base of operations down to a sampleOp.
 	[CreateAssetMenu(fileName = "Op Collection",menuName = "Clayze/OperationCollection",order = 1)]

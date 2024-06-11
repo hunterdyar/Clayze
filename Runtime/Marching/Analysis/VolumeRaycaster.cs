@@ -1,7 +1,7 @@
 ﻿using System;
 using UnityEngine;
 
-namespace Marching.Analysis
+namespace Clayze.Marching.Analysis
 {
 	public class VolumeRaycaster : MonoBehaviour
 	{

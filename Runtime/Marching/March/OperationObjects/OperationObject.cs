@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace Marching.Operations
+namespace Clayze.Marching.Operations
 {
 	public class OperationObject : MonoBehaviour
 	{

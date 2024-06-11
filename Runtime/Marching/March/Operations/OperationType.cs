@@ -1,4 +1,4 @@
-﻿namespace Marching.Operations
+﻿namespace Clayze.Marching.Operations
 {
 	public enum OperationType : byte
 	{

@@ -1,6 +1,6 @@
 using UnityEngine;
 
-namespace Marching.Operations
+namespace Clayze.Marching.Operations
 {
 	public abstract class RotatedOperation<T> : IOperation where T : IOperation
 	{

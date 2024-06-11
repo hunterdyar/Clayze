@@ -1,7 +1,7 @@
 using System.Linq;
 using UnityEngine;
 
-namespace Marching.Operations
+namespace Clayze.Marching.Operations
 {
 	[System.Serializable]
 	public class SDFOperation : IOperation

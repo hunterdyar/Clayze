@@ -1,7 +1,8 @@
 using System;
 using UnityEngine;
+using Clayze.Marching.Operations;
 
-namespace Marching.Operations
+namespace Clayze.Marching
 {
 	public class LineStamp : MonoBehaviour
 	{

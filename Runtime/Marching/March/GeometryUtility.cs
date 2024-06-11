@@ -1,7 +1,7 @@
 ﻿using System;
 using UnityEngine;
 
-namespace Marching
+namespace Clayze.Marching
 {
 	public class GeometryUtility
 	{

@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 
-namespace Marching
+namespace Clayze.Marching
 {
 	[System.Runtime.InteropServices.StructLayout(System.Runtime.InteropServices.LayoutKind.Sequential)]
 	struct Triangle

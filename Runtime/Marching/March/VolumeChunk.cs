@@ -6,7 +6,7 @@ using UnityEngine.Rendering;
 using UnityEngine.Serialization;
 using Object = System.Object;
 
-namespace Marching
+namespace Clayze.Marching
 {
 	public class VolumeChunk : MonoBehaviour
 	{

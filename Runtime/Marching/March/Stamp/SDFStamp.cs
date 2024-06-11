@@ -1,7 +1,7 @@
-using Marching.Operations;
+using Clayze.Marching.Operations;
 using UnityEngine;
 
-namespace Marching.March.Stamp
+namespace Clayze.Marching
 {
 	public class SDFStamp : MonoBehaviour
 	{

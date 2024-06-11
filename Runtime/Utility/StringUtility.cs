@@ -1,4 +1,4 @@
-namespace Packages.Clayze.Editor
+namespace Packages.Clayze
 {
 	public static class StringUtility
 	{

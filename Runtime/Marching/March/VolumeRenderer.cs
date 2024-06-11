@@ -4,7 +4,7 @@ using System.Linq;
 using UnityEngine;
 using UnityEngine.Rendering;
 
-namespace Marching
+namespace Clayze.Marching
 {
 	/// <summary>
 	/// A Volume Renderer Instantiates a number of VolumeChunks, according to Division. These chunks get the mesh renderer, and update themselves with their own pointcache's and compute shader dispatches.

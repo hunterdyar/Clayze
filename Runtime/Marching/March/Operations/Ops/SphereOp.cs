@@ -1,7 +1,7 @@
 ﻿using System;
 using UnityEngine;
 
-namespace Marching.Operations
+namespace Clayze.Marching.Operations
 {
 	[System.Serializable]
 	public struct SphereOp : IOperation, IEquatable<SphereOp>

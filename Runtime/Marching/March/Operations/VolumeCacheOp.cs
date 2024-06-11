@@ -1,6 +1,6 @@
 using UnityEngine;
 
-namespace Marching.Operations
+namespace Clayze.Marching.Operations
 {
 	/// <summary>
 	/// It's like an SDF Operation, but in volume space, it should match the size of the volume, and implicitly affects the entire volume. 

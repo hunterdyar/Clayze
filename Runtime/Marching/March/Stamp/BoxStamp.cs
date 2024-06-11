@@ -1,7 +1,8 @@
 using System;
+using Clayze.Marching.Operations;
 using UnityEngine;
 
-namespace Marching.Operations
+namespace Clayze.Marching
 {
 	public class BoxStamp : MonoBehaviour
 	{

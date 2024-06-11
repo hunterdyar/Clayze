@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 
-namespace Marching.Operations
+namespace Clayze.Marching.Operations
 {
 	public class Sphere : OperationObject
 	{

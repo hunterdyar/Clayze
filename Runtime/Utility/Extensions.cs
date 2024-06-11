@@ -3,7 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace Extensions
+namespace Clayze.Extensions
 {
 	public static class Extensions
 	{

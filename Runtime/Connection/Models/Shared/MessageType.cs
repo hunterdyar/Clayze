@@ -1,4 +1,4 @@
-﻿namespace Models.Shared
+﻿namespace Clayze
 {
 	public enum MessageType : byte
 	{

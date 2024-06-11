@@ -1,4 +1,4 @@
-﻿namespace Connection
+﻿namespace Clayze.Connection
 {
 	public enum ConnectionStatus
 	{

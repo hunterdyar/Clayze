@@ -1,9 +1,7 @@
 ﻿using System;
-using Marching.Operations;
 using UnityEngine;
-using UnityEngine.Serialization;
 
-namespace Connection
+namespace Clayze.Connection
 {
 	public class OperationInitializer : MonoBehaviour
 	{

@@ -1,11 +1,8 @@
-using System.Collections.Generic;
 using System.Linq;
-using Connection;
-using Marching.Operations;
+using Clayze;
+using Clayze.Connection;
 using UnityEditor;
-using UnityEditor.Graphs;
 using UnityEditor.UIElements;
-using UnityEngine;
 using UnityEngine.UIElements;
 
 namespace Packages.Clayze.Editor
