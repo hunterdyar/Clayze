@@ -13,9 +13,24 @@ namespace Packages.Clayze.Editor
 	[CustomEditor(typeof(OperationCollection))]
 	public class OperationCollectionEditor : UnityEditor.Editor
 	{
+		private OperationCollection opCol;
+		public OperationCollectionEditor()
+		{
+			EditorApplication.playModeStateChanged+= delegate(PlayModeStateChange change)
+			{
+				if (change == PlayModeStateChange.ExitingPlayMode)
+				{
+					if (opCol != null)
+					{
+						opCol.Stop();
+						Repaint();
+					}
+				}
+			};
+		}
 		public override VisualElement CreateInspectorGUI()
 		{
-			 var opCol = (target as OperationCollection);
+			 opCol = (target as OperationCollection);
 			 
 			 VisualElement root = new VisualElement();
 
@@ -23,6 +38,7 @@ namespace Packages.Clayze.Editor
 			 opCol.OnConnectionStatusChanged += status =>
 			 {
 				 connectionLabel.text = $"Connection Status: {opCol.ConnectionStatus}";
+				 Repaint();
 			 };
 			 root.Add(connectionLabel);
 			 var connnStatusProp = serializedObject.FindProperty("ConnectionStatus");
@@ -40,17 +56,45 @@ namespace Packages.Clayze.Editor
 			 root.Add(reconDelayElement);
 
 			 var connectionButtons = new VisualElement();
+			 connectionButtons.style.flexDirection = FlexDirection.Row;
 			 var reconnectButton = new Button();
-			 reconnectButton.text = "Reconnect";
-			 reconnectButton.SetEnabled(opCol.ConnectionStatus == ConnectionStatus.Connected);
+			 var stopButton = new Button();
+
+			 reconnectButton.text = "Connect";
+			 stopButton.text = "Disconnect";
+
+			 reconnectButton.SetEnabled(opCol.ConnectionStatus == ConnectionStatus.Disconnected && EditorApplication.isPlaying);
 			 reconnectButton.clicked += () =>
 			 {
 				 if (opCol.ConnectionStatus != ConnectionStatus.Connected)
 				 {
 					 opCol.InitAndConnect();
+					 reconnectButton.SetEnabled(opCol.ConnectionStatus == ConnectionStatus.Disconnected &&
+					                            EditorApplication.isPlaying);
+					 stopButton.SetEnabled(opCol.ConnectionStatus == ConnectionStatus.Connected
+					                       || opCol.ConnectionStatus == ConnectionStatus.AttemptingToConnect
+					                       && EditorApplication.isPlaying);
+					 Repaint();
 				 }
 			 };
 			 connectionButtons.Add(reconnectButton);
+			 stopButton.SetEnabled(opCol.ConnectionStatus == ConnectionStatus.Connected
+			  || opCol.ConnectionStatus == ConnectionStatus.AttemptingToConnect
+			  && EditorApplication.isPlaying);
+			 stopButton.clicked += () =>
+			 {
+				 if (opCol.ConnectionStatus == ConnectionStatus.Connected)
+				 {
+					 opCol.Stop();
+					 reconnectButton.SetEnabled(opCol.ConnectionStatus == ConnectionStatus.Disconnected &&
+					                            EditorApplication.isPlaying);
+					 stopButton.SetEnabled(opCol.ConnectionStatus == ConnectionStatus.Connected
+					                       || opCol.ConnectionStatus == ConnectionStatus.AttemptingToConnect
+					                       && EditorApplication.isPlaying);
+					 Repaint();
+				 }
+			 };
+			 connectionButtons.Add(stopButton);
 			 root.Add(connectionButtons);
 
 			 
@@ -62,7 +106,7 @@ namespace Packages.Clayze.Editor
 			 if (opCol.recentConnectionURLs.Count > 0)
 			 {
 				 var recents = opCol.recentConnectionURLs.Select(StringUtility.ConvertSlashToUnicodeSlash).ToList();
-				 var urlPresets = new DropdownField("Server Presets", recents, 0, (s) =>
+				 var urlPresets = new DropdownField("Recent Servers", recents, 0, (s) =>
 				 {
 					 s = StringUtility.ConvertUnicodeSlashToSlash(s);
 					 opCol.connectionURL = s;
@@ -80,5 +124,6 @@ namespace Packages.Clayze.Editor
 			 root.Add(opsElement);
 			 return root;
 		}
+		
 	}
 }

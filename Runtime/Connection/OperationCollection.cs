@@ -66,7 +66,7 @@ namespace Marching.Operations
 
 			_websocket.OnClose += (e) =>
 			{
-				Debug.Log($"Connection closed! {e}");
+				Debug.Log($"Connection closed! Code: {e}");
 				SetConnectionStatus(ConnectionStatus.Disconnected);
 			};
 
@@ -214,6 +214,10 @@ namespace Marching.Operations
 				_websocket.DispatchMessageQueue();
 				_websocket.Close();
 			}
+			else
+			{
+				SetConnectionStatus(ConnectionStatus.Disconnected);
+			}
 		}
 
 		public void DispatchMessageQueue()
@@ -227,6 +231,7 @@ namespace Marching.Operations
 		//Local add!
 		public void Add(IOperation op, bool local = true)
 		{
+			
 			//todo: check if bounds are out of bounds of the volume. 
 			//we should do that elsewhere and it should never hit this list.
 			localStatus = "Add Local, Need ID from server...";
