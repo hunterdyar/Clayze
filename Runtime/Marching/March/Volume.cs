@@ -140,6 +140,16 @@ public class Volume : MonoBehaviour
                 local.z >= 0 && local.z < (_size / pointsPerUnit));
     }
 
+    public bool IsInBounds(Vector3 min, Vector3 max)
+    {
+        return IsInBounds(min) || IsInBounds(max);
+    }
+
+    public bool IsInBounds((Vector3 min, Vector3 max) bounds)
+    {
+        return IsInBounds(bounds.min) || IsInBounds(bounds.max);
+    }
+
     public static int IndexFromCoord(int x, int y, int z, int size)
     {
         return
@@ -152,6 +162,7 @@ public class Volume : MonoBehaviour
     {
         return IndexFromCoord(x, y, z, _size);
     }
+    
 
     public Vector3Int CoordFromIndex(int i)
     {

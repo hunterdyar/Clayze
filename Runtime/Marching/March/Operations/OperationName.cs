@@ -9,5 +9,6 @@
 		Line = 4,
 		AABox = 5,
 		Box = 6,
+		Cache,
 	}
 }

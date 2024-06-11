@@ -5,5 +5,6 @@
 		Add,
 		Remove,
 		Pass,
+		Recompose,
 	}
 }

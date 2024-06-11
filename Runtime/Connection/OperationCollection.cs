@@ -13,9 +13,12 @@ namespace Marching.Operations
 	[CreateAssetMenu(fileName = "Op Collection",menuName = "Clayze/OperationCollection",order = 1)]
 	public class OperationCollection : ScriptableObject
 	{
+		public Action<ConnectionStatus> OnConnectionStatusChanged;
 		//Network
 		public ConnectionStatus ConnectionStatus = ConnectionStatus.Idle;
 		public string connectionURL;
+		public List<string> recentConnectionURLs = new List<string>();
+		private int maxRecentURLs = 10;
 		public string localStatus = "";
 		private WebSocket _websocket;
 		private Queue<int> _operationsWaitingForIndex = new Queue<int>();
@@ -32,14 +35,29 @@ namespace Marching.Operations
 
 		public void InitAndConnect()
 		{
-			ConnectionStatus = ConnectionStatus.Idle;
+			SetConnectionStatus(ConnectionStatus = ConnectionStatus.Idle);
 			localStatus = "Initialized";
 			_websocket = new WebSocket(connectionURL);
+			
+			if (!recentConnectionURLs.Contains(connectionURL))
+			{
+				recentConnectionURLs.Insert(0,connectionURL);
+				if (recentConnectionURLs.Count > maxRecentURLs)
+				{
+					recentConnectionURLs.RemoveAt(recentConnectionURLs.Count-1);
+				}
+			}
+			else
+			{
+				//move to top of list.
+				recentConnectionURLs.Remove(connectionURL);
+				recentConnectionURLs.Insert(0, connectionURL);
+			}
 
 			_websocket.OnOpen += () =>
 			{
 				Debug.Log("Connection open!");
-				ConnectionStatus = ConnectionStatus.Connected;
+				SetConnectionStatus(ConnectionStatus = ConnectionStatus.Connected);
 				//connected! Let's clear what we have and update from the server.
 				_websocket.Send(new byte[] { (byte)MessageType.GetAll });
 			};
@@ -49,15 +67,20 @@ namespace Marching.Operations
 			_websocket.OnClose += (e) =>
 			{
 				Debug.Log($"Connection closed! {e}");
-				this.ConnectionStatus = ConnectionStatus.Disconnected;
+				SetConnectionStatus(ConnectionStatus.Disconnected);
 			};
 
 			_websocket.OnMessage += OnReceiveFromServer;
 
-			ConnectionStatus = ConnectionStatus.AttemptingToConnect;
+			SetConnectionStatus(ConnectionStatus.AttemptingToConnect);
 			_websocket.Connect();
 		}
 
+		private void SetConnectionStatus(ConnectionStatus status)
+		{
+			ConnectionStatus = status;
+			OnConnectionStatusChanged?.Invoke(ConnectionStatus);
+		}
 		private void OnReceiveFromServer(byte[] data)
 		{
 			var messageType = (MessageType)data[0];
@@ -104,10 +127,17 @@ namespace Marching.Operations
 
 			uint removeID = BitConverter.ToUInt32(intbytes);
 			var removeIndex =_operations.FindIndex(x => x.UniqueID == removeID);
-			var op = _operations[removeIndex];
-			_operations.RemoveAt(removeIndex);
-			//even though the operation is removed, the changed is just a fresh within the worldbounds of the op.
-			OperationChanged?.Invoke(op);
+			if (removeIndex != -1)
+			{
+				var op = _operations[removeIndex];
+				_operations.RemoveAt(removeIndex);
+				//even though the operation is removed, the changed is just a fresh within the worldbounds of the op.
+				OperationChanged?.Invoke(op);
+			}
+			else
+			{
+				Debug.LogWarning("Unable to Remove item despite removal of it from net collection. We have probably optimized out list. Uh oh!");
+			}
 		}
 
 		private void AddOperationsFromServer(byte[] data)
@@ -267,6 +297,11 @@ namespace Marching.Operations
 			OperationChanged?.Invoke(newVal);
 		}
 
+		[ContextMenu("Clear Recent Server URLs")]
+		private void ClearRecentConnectionURLs()
+		{
+			recentConnectionURLs.Clear();
+		}
 		public void Optimize()
 		{
 			//First, loop for operations whose bounding areas are the entire area, like ClearOp. Remove everything before ClearOp.
