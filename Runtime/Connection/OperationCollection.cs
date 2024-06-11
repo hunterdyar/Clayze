@@ -34,6 +34,12 @@ namespace Clayze
 		
 		public void InitAndConnect()
 		{
+			if (_socketSettings.connectionURL == "")
+			{
+				Debug.Log($"Connection URL for {this} is empty. Not bothering to try to connect.");
+				return;
+			}
+			
 			SetConnectionStatus(ConnectionStatus = ConnectionStatus.Idle);
 			localStatus = "Initialized";
 			_websocket = new WebSocket(_socketSettings.connectionURL);

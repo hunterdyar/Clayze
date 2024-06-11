@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 
 namespace SyncedProperty
@@ -10,6 +11,7 @@ namespace SyncedProperty
 		//A separate websocket connection will be created for a list of values, and it should use a unique property endpoint, as values will bee saved by index.
 		public bool IsOwner { get;}
 		public string Title { get; }
+		public uint ID { get; }
 		public byte[] ToBytes();
 		public void SetFromBytes(byte[] data);
 	}

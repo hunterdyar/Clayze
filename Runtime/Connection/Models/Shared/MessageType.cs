@@ -8,5 +8,6 @@
 		GetAll = 3,
 		IDReply = 4,
 		Clear = 5,
+		Changed = 6,
 	}
 }

@@ -1,5 +1,4 @@
 using System;
-using log4net.Appender;
 using UnityEngine;
 
 namespace Clayze.Marching.Operations
@@ -20,8 +19,7 @@ namespace Clayze.Marching.Operations
 		public uint UniqueID { get; set; }
 		[SerializeField]
 		private int size;
-
-
+		[SerializeField]
 		private Volume _volume;
 		// private int height;
 		// private int depth;
