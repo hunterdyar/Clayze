@@ -312,15 +312,19 @@ namespace Clayze
 			recentConnectionURLs.Clear();
 		}
 
-		public void Optimize()
+		public void BakeVolumeToCache(Volume volume)
 		{
-			//First, loop for operations whose bounding areas are the entire area, like ClearOp. Remove everything before ClearOp.
+			var cache = new VolumeCacheOp(volume);
+			_operations.Clear();//local only!
+			_operations.Add(cache);//local only!
 			
+			//First, loop for operations whose bounding areas are the entire area, like ClearOp. Remove everything before ClearOp.
+
 			//Remove Operations that are entirely contained inside of later operations.
 			//Start at the end of the list, and keep a boundingArea (?? list of points? boundingBoxes?)
 			//loop towards the start, and if an operation has all of it's points inside of this area, remove it. Else, add it's points to this set.
-			
-			
+
+			ForceRefresh?.Invoke();
 		}
 	}
 }

@@ -5,6 +5,6 @@
 		Add,
 		Remove,
 		Pass,
-		Recompose,
+		SetLocal,
 	}
 }

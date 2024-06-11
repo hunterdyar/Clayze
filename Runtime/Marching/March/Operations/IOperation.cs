@@ -14,6 +14,10 @@ namespace Clayze.Marching.Operations
 		/// </summary>
 		public abstract void Sample(Vector3 worldPoint, ref float f);
 
+		public virtual void Sample(Volume volume, int x, int y, int z, ref float f)
+		{
+			Sample(volume.VolumeToWorld(x, y, z), ref f);
+		}
 		public void SetID(uint uniqueID)
 		{
 			UniqueID = uniqueID;

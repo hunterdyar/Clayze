@@ -117,6 +117,10 @@ namespace Clayze
                 if (op.OperationType == OperationType.Pass)
                 {
                     continue;
+                }else if (op.OperationType == OperationType.SetLocal)
+                {
+                    op.Sample(this, x, y, z, ref _f);
+                    continue;
                 }
 
                 op.Sample(VolumeToWorld(x, y, z), ref _f);
@@ -220,6 +224,12 @@ namespace Clayze
 
             //stride is 16. float is 4 bytes, float4 = 16.
             pointsBuffer.SetData(data, 0, 0, data.Length);
+        }
+
+        [ContextMenu("Bake Current Volume to Collection")]
+        public void BakeVolumeToCollection()
+        {
+            _opCol.BakeVolumeToCache(this);
         }
 
         [ContextMenu("Save Test Texture")]

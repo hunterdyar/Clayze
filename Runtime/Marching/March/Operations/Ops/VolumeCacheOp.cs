@@ -1,3 +1,5 @@
+using System;
+using log4net.Appender;
 using UnityEngine;
 
 namespace Clayze.Marching.Operations
@@ -6,30 +8,36 @@ namespace Clayze.Marching.Operations
 	/// It's like an SDF Operation, but in volume space, it should match the size of the volume, and implicitly affects the entire volume. 
 	/// The reason we have a separate operation, is because we know for sure that this one can be collected of all the prior operations.
 	/// </summary>
+	[System.Serializable]
 	public class VolumeCacheOp : IOperation
 	{
 		public float[] Points => _points;
+
+		[SerializeField]
 		private float[] _points;
 		public OperationName OpName => OperationName.Cache;
-		public OperationType OperationType => OperationType.Recompose;
+		public OperationType OperationType => OperationType.SetLocal;
 		public uint UniqueID { get; set; }
+		[SerializeField]
 		private int size;
 
-		private float[] points;
+
+		private Volume _volume;
 		// private int height;
 		// private int depth;
 
 		public VolumeCacheOp(Volume volume)
 		{
+			_volume = volume;
 			size = volume.Size;
-			points = new float[size * size * size];//width*height*depth
+			_points = new float[size * size * size];//width*height*depth
 			for (int x = 0; x < size; x++)
 			{
 				for (int y = 0; y < size; y++)
 				{
 					for (int z = 0; z < size; z++)
 					{
-						points[Volume.IndexFromCoord(x, y, z, size)] = volume.SamplePoint(x, y, z);
+						_points[Volume.IndexFromCoord(x, y, z, size)] = volume.SamplePoint(x, y, z);
 					}
 				}
 			}
@@ -41,7 +49,12 @@ namespace Clayze.Marching.Operations
 
 		public void Sample(Vector3 worldPoint, ref float f)
 		{
-			throw new System.NotImplementedException();
+			throw new NotImplementedException("Cache operation must be of type 'SetLocal'");
+		}
+
+		public void Sample(Volume v, int x, int y, int z, ref float f)
+		{
+			 f = OpUtility.Mix(OperationType.Add,f,_points[Volume.IndexFromCoord(x,y,z,size)]);
 		}
 	}
 }

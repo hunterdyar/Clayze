@@ -310,7 +310,10 @@ namespace Clayze.Marching
 				_computeCommandBuffer.Release();
 			}
 
-			_pointsCache.Dispose();
+			if (_pointsCache != null)
+			{
+				_pointsCache.Dispose();
+			}
 		}
 
 		public ComputeBuffer PointsBuffer()
