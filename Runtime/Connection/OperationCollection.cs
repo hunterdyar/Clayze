@@ -32,7 +32,7 @@ namespace Marching.Operations
 		public List<IOperation> Operations => _operations;
 		[SerializeReference, SubclassSelector]
 		private List<IOperation> _operations = new List<IOperation>();
-
+		
 		public void InitAndConnect()
 		{
 			SetConnectionStatus(ConnectionStatus = ConnectionStatus.Idle);
@@ -268,7 +268,11 @@ namespace Marching.Operations
 		public void Clear()
 		{
 			_operations.Clear();
-			_websocket.Send(new byte[]{(byte)MessageType.Clear});
+			if (_websocket != null)
+			{
+				_websocket.Send(new byte[] { (byte)MessageType.Clear });
+			}
+
 			ForceRefresh?.Invoke();
 			//UH gotta tell volume to hard-refresh
 		}
@@ -307,6 +311,7 @@ namespace Marching.Operations
 		{
 			recentConnectionURLs.Clear();
 		}
+
 		public void Optimize()
 		{
 			//First, loop for operations whose bounding areas are the entire area, like ClearOp. Remove everything before ClearOp.
