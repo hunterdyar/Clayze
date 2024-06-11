@@ -1,4 +1,3 @@
-using System.Linq;
 using Clayze;
 using Clayze.Connection;
 using UnityEditor;
@@ -55,22 +54,11 @@ namespace Packages.Clayze.Editor
 			 root.Add(ConnectionButtons());
 
 			 root.Add(new Label("Connection Settings"));
-			 var serverURLProp = serializedObject.FindProperty("connectionURL");
-			 var serverURLElement= new PropertyField(serverURLProp);
-			 root.Add(serverURLElement);
+			 //socket settings
+			 var socketSettingsProp = serializedObject.FindProperty("_socketSettings");
+			 var socketSettingsElement = new PropertyField(socketSettingsProp);
+			 root.Add(socketSettingsElement);
 			 
-			 if (opCol.recentConnectionURLs.Count > 0)
-			 {
-				 var recents = opCol.recentConnectionURLs.Select(StringUtility.ConvertSlashToUnicodeSlash).ToList();
-				 var urlPresets = new DropdownField("Recent Servers", recents, 0, (s) =>
-				 {
-					 s = StringUtility.ConvertUnicodeSlashToSlash(s);
-					 opCol.connectionURL = s;
-					 return s;
-				 });
-				 root.Add(urlPresets);
-			 }
-
 			 var opsLabel = new Label("Operations");
 			 opsLabel.style.paddingTop = new StyleLength(20);
 			 root.Add(opsLabel);

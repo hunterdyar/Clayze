@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Clayze.Connection;
 using Clayze.Marching.Operations;
+using Connection;
 using UnityEngine;
 using NativeWebSocket;
 using UnityEngine.Assertions;
@@ -16,9 +17,7 @@ namespace Clayze
 		public Action<ConnectionStatus> OnConnectionStatusChanged;
 		//Network
 		public ConnectionStatus ConnectionStatus = ConnectionStatus.Idle;
-		public string connectionURL;
-		public List<string> recentConnectionURLs = new List<string>();
-		private int maxRecentURLs = 10;
+		public SocketSettings _socketSettings;
 		public string localStatus = "";
 		private WebSocket _websocket;
 		private Queue<int> _operationsWaitingForIndex = new Queue<int>();
@@ -37,22 +36,8 @@ namespace Clayze
 		{
 			SetConnectionStatus(ConnectionStatus = ConnectionStatus.Idle);
 			localStatus = "Initialized";
-			_websocket = new WebSocket(connectionURL);
-			
-			if (!recentConnectionURLs.Contains(connectionURL))
-			{
-				recentConnectionURLs.Insert(0,connectionURL);
-				if (recentConnectionURLs.Count > maxRecentURLs)
-				{
-					recentConnectionURLs.RemoveAt(recentConnectionURLs.Count-1);
-				}
-			}
-			else
-			{
-				//move to top of list.
-				recentConnectionURLs.Remove(connectionURL);
-				recentConnectionURLs.Insert(0, connectionURL);
-			}
+			_websocket = new WebSocket(_socketSettings.connectionURL);
+			_socketSettings.AddRecent(_socketSettings.connectionURL);
 
 			_websocket.OnOpen += () =>
 			{
@@ -309,7 +294,7 @@ namespace Clayze
 		[ContextMenu("Clear Recent Server URLs")]
 		private void ClearRecentConnectionURLs()
 		{
-			recentConnectionURLs.Clear();
+			_socketSettings.recentConnectionURLs.Clear();
 		}
 
 		public void BakeVolumeToCache(Volume volume)
