@@ -22,5 +22,13 @@ namespace SyncedProperty
 				collection.Stop();
 			}
 		}
+
+		private void LateUpdate()
+		{
+			foreach (var col in Collections)
+			{
+				col.SendChangesIfNeeded();
+			}
+		}
 	}
 }

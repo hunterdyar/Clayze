@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using Clayze;
 using Clayze.Connection;
 using Connection;
@@ -8,7 +9,7 @@ using UnityEngine;
 
 namespace SyncedProperty
 {
-	[CreateAssetMenu(fileName = "SyncedCollection", menuName = "Synced Properties", order = 0)]
+	[CreateAssetMenu(fileName = "SyncedCollection", menuName = "Clayze/Property Synchronizer Collection", order = 0)]
 	public class SyncedPropertyCollection : ScriptableObject
 	{
 		public ConnectionStatus ConnectionStatus = ConnectionStatus.Idle;
@@ -16,22 +17,12 @@ namespace SyncedProperty
 		private WebSocket _websocket;
 		
 		[SerializeField, SerializeReference]
-		private List<ISyncable> _values = new List<ISyncable>();
-
-		[ContextMenu("Add Sync Float")]
-		public void AddSyncFloat()
-		{
-			_values.Add(new SyncFloat(_values.Count));			
-		}
-
-		[ContextMenu("Add Sync V3")]
-		public void AddSyncV3()
-		{
-			_values.Add(new SyncVector3(_values.Count));
-		}
-
+		//what should the base class here be?
+		private List<SyncableBase> _values = new List<SyncableBase>();
+		//todo: cache id lookup with dictionary.
 		public void InitAndConnect()
 		{
+			//todo: check that all ID's are unique.
 			if (_socketSettings.connectionURL == "")
 			{
 				Debug.Log($"Connection URL for {this} is empty. Not bothering to try to connect.");
@@ -43,7 +34,7 @@ namespace SyncedProperty
 
 			_websocket.OnOpen += () =>
 			{
-				Debug.Log("Connection open!");
+				Debug.Log($"Connection open for {name}!");
 				SetConnectionStatus(ConnectionStatus = ConnectionStatus.Connected);
 				//connected! Let's clear what we have and update from the server.
 				_websocket.Send(new byte[] { (byte)MessageType.GetAll });
@@ -53,7 +44,7 @@ namespace SyncedProperty
 
 			_websocket.OnClose += (e) =>
 			{
-				Debug.Log($"Connection closed! Code: {e}");
+				Debug.Log($"Connection closed for {name}! Code: {e}. URL: {_socketSettings.connectionURL}");
 				SetConnectionStatus(ConnectionStatus.Disconnected);
 			};
 
@@ -61,6 +52,35 @@ namespace SyncedProperty
 
 			SetConnectionStatus(ConnectionStatus.AttemptingToConnect);
 			_websocket.Connect();
+		}
+
+		public void SendChangesIfNeeded()
+		{
+			//todo: check if we are waiting for a response on any previous changes before sending updates.
+			foreach (var x in _values)
+			{
+				if (x.IsDirty)
+				{
+					//todo: check if bounds are out of bounds of the volume. 
+					//we should do that elsewhere and it should never hit this list.
+					var data = x.ToBytes();
+					var packet = new byte[data.Length + 5];
+					packet[0] = (byte)MessageType.Changed;
+					BitConverter.GetBytes(x.ID).CopyTo(packet, 1);
+					data.CopyTo(packet, 5);
+					if (ConnectionStatus == ConnectionStatus.Connected)
+					{
+						//must be local only.... but we should check that.
+						_websocket.Send(packet);
+					}
+					else
+					{
+						Debug.LogWarning("Local only add!");
+					}
+
+					x.IsDirty = false;
+				}
+			}
 		}
 
 		private void OnReceiveFromServer(byte[] data)
@@ -81,9 +101,27 @@ namespace SyncedProperty
 					break;
 				case MessageType.Clear:
 					break;
+				case MessageType.Changed:
+					PropertyChanged(data);
+					break;
 				default:
 					Debug.LogError($"{messageType} not handled by client.");
 					break;
+			}
+		}
+
+		private void PropertyChanged(byte[] data)
+		{
+			
+			uint id = BitConverter.ToUInt32(new ArraySegment<byte>(data, 1, 4));
+			var prop = _values.Find(x => x.ID == id);
+			if (prop != null)
+			{
+				prop.SetFromBytes(new ArraySegment<byte>(data, 5, data.Length - 5));
+				if (prop.IsOwner)
+				{
+					Debug.LogWarning("Got value. We are owner, so ignoring. Is someone else owner too?");
+				}
 			}
 		}
 
