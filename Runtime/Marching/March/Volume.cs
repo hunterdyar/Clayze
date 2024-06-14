@@ -136,6 +136,7 @@ namespace Clayze
 
         public Vector3 VolumeToWorld(int x, int y, int z)
         {
+          //  return transform.TransformPoint(new Vector3(x / pointsPerUnit, y / pointsPerUnit, z / pointsPerUnit));
             return new Vector3(x / pointsPerUnit, y / pointsPerUnit, z / pointsPerUnit);
         }
 

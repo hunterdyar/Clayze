@@ -29,5 +29,10 @@
         "displayName": "Basic Usage",
         "description": "Simple configuration",
         "path": "Samples~/Basic"
+    },
+    {
+        "displayName": "Utilities",
+        "description": "Helpful MonoBehaviours",
+        "path": "Samples~/Utility"
     }]
 }
