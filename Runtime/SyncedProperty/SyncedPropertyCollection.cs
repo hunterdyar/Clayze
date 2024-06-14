@@ -6,6 +6,7 @@ using Clayze.Connection;
 using Connection;
 using NativeWebSocket;
 using UnityEngine;
+using UnityEngine.Assertions;
 
 namespace SyncedProperty
 {
@@ -25,7 +26,7 @@ namespace SyncedProperty
 			//todo: check that all ID's are unique.
 			if (_socketSettings.connectionURL == "")
 			{
-				Debug.Log($"Connection URL for {this} is empty. Not bothering to try to connect.");
+				Debug.Log($"Connection URL for {this} is empty. Aborting.");
 				return;
 			}
 			SetConnectionStatus(ConnectionStatus = ConnectionStatus.Idle);
@@ -47,6 +48,7 @@ namespace SyncedProperty
 				Debug.Log($"Connection closed for {name}! Code: {e}. URL: {_socketSettings.connectionURL}");
 				SetConnectionStatus(ConnectionStatus.Disconnected);
 			};
+			
 
 			_websocket.OnMessage += OnReceiveFromServer;
 
@@ -54,6 +56,12 @@ namespace SyncedProperty
 			_websocket.Connect();
 		}
 
+		[ContextMenu("Ping Hello")]
+		public void SendHello()
+		{
+			byte[] hello = new byte[] { (byte)MessageType.Echo, 0, 0, 0, 0};
+			_websocket.Send(hello);
+		}
 		public void SendChangesIfNeeded()
 		{
 			//todo: check if we are waiting for a response on any previous changes before sending updates.
@@ -121,6 +129,7 @@ namespace SyncedProperty
 				if (prop.IsOwner)
 				{
 					Debug.LogWarning("Got value. We are owner, so ignoring. Is someone else owner too?");
+					prop.IsDirty = false;
 				}
 			}
 		}
@@ -130,9 +139,30 @@ namespace SyncedProperty
 			ConnectionStatus = newStatus;
 		}
 
+		public void DispatchMessageQueue()
+		{
+			if (_websocket != null)
+			{
+				_websocket.DispatchMessageQueue();
+			}
+		}
 		public void Stop()
 		{
-			
+			if (_websocket != null)
+			{
+				_websocket.Close();
+			}
 		}
+
+#if UNITY_EDITOR
+		[ContextMenu("Test Serialization")]
+		public void TestSerialization()
+		{
+			foreach (var val in _values)
+			{
+				Assert.IsTrue(val.TestSerialization(), $"Serialization broken for {val}. {val.GetType()}");
+			}
+		}
+#endif
 	}
 }

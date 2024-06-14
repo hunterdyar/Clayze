@@ -3,6 +3,7 @@ using UnityEngine;
 
 #if UNITY_EDITOR
 using UnityEditor;
+using UnityEngine.Assertions;
 #endif
 
 namespace SyncedProperty
@@ -17,7 +18,7 @@ namespace SyncedProperty
 
 		public void SetFromBytes(ArraySegment<byte> data)
 		{
-			SetFromBytes(data.Array);
+			SetFromBytes(data.ToArray());
 			IsDirty = false;
 		}
 
@@ -47,10 +48,14 @@ namespace SyncedProperty
 
 			ID = highestID;
 		}
+
+		public abstract bool TestSerialization();
+
 #endif
 
+
 	}
-	public abstract class Syncable<T> : SyncableBase
+	public abstract class Syncable<T> : SyncableBase where T : IEquatable<T>
 	{
 		//This will a single-value version of the operation class.
 		//We can use this for "Normal" net-code behaviour, like sync-ing transforms for previewing each other in a multi-user scene.
@@ -72,6 +77,16 @@ namespace SyncedProperty
 		{
 			return _value.ToString();
 		}
+#if  UNITY_EDITOR
+		
+		public override bool TestSerialization()
+		{
+			var x = _value;
+			SetFromBytes(ToBytes());
+			return x.Equals(_value);
+		}
+#endif
+
 	}
 	
 }

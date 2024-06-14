@@ -6,7 +6,8 @@ namespace SyncedProperty
 	public class SyncPropertyInitializer : MonoBehaviour
 	{
 		public SyncedPropertyCollection[] Collections;
-
+		[SerializeField] private float updateFrequency = 0.2f;
+		private float updateTimer;
 		private void Awake()
 		{
 			foreach (var collection in Collections)
@@ -15,19 +16,43 @@ namespace SyncedProperty
 			}
 		}
 
-		private void OnDestroy()
+		private void Update()
+		{
+#if !UNITY_WEBGL || UNITY_EDITOR
+			foreach (var collection in Collections)
+			{
+				collection.DispatchMessageQueue();
+			}
+#endif
+			updateTimer -= Time.deltaTime;
+		}
+
+		private void LateUpdate()
+		{
+			if (updateTimer > 0)
+			{
+				return;
+			}
+
+			updateTimer = updateFrequency;
+			foreach (var col in Collections)
+			{
+				col.SendChangesIfNeeded();
+			}
+		}
+
+		private void OnApplicationQuit()
 		{
 			foreach (var collection in Collections)
 			{
 				collection.Stop();
 			}
 		}
-
-		private void LateUpdate()
+		private void OnDestroy()
 		{
-			foreach (var col in Collections)
+			foreach (var collection in Collections)
 			{
-				col.SendChangesIfNeeded();
+				collection.Stop();
 			}
 		}
 	}

@@ -33,5 +33,10 @@ namespace Clayze.Connection
 		{
 			OpCollection.Stop();
 		}
+
+		private void OnApplicationQuit()
+		{
+			OpCollection.Stop();
+		}
 	}
 }

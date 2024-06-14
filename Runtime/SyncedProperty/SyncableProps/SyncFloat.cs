@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using UnityEngine;
 
 namespace SyncedProperty
@@ -11,12 +12,20 @@ namespace SyncedProperty
 		public override byte[] ToBytes()
 		{
 			//todo: endian
-			return BitConverter.GetBytes(_value);
+			if (BitConverter.IsLittleEndian)
+			{
+				return BitConverter.GetBytes(_value);
+			}
+			else
+			{
+				return BitConverter.GetBytes(_value).Reverse().ToArray();
+			}
 		}
 
 		public override void SetFromBytes(byte[] data)
 		{
 			_value = BitConverter.ToSingle(data);
+			OnChange?.Invoke(_value);
 		}
 	}
 }
