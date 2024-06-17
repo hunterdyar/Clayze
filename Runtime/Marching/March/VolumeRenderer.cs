@@ -125,7 +125,7 @@ namespace Clayze.Marching
 			//how slow is this function?
 			_chunkNeedingUpdate.Sort(SortChunkByDistance);
 		}
-
+		
 		public int SortChunkByDistance(VolumeChunk a, VolumeChunk b)
 		{
 			var ad = GeometryUtility.DistanceFromCamera(a.WorldCenter);

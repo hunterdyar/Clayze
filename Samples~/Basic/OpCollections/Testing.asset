@@ -13,31 +13,13 @@ MonoBehaviour:
   m_Name: Testing
   m_EditorClassIdentifier: 
   ConnectionStatus: 3
-  connectionURL: wss://clayzeserver.hdyar.com:443/test
+  _socketSettings:
+    connectionURL: 
+    recentConnectionURLs:
+    - wss://clayzeserver.hdyar.com:443/test
   localStatus: Stopped
   reconnectionDelay: 30
-  _operations:
-  - rid: 6956713594863222784
-  - rid: 6956713594863222785
-  - rid: 6956713594863222786
+  _operations: []
   references:
     version: 2
-    RefIds:
-    - rid: 6956713594863222784
-      type: {class: SphereOp, ns: Marching.Operations, asm: ClayzeRuntime}
-      data:
-        _operationType: 0
-        _radius: 4
-        _center: {x: 6.5564394, y: -3.6028318, z: 10}
-    - rid: 6956713594863222785
-      type: {class: SphereOp, ns: Marching.Operations, asm: ClayzeRuntime}
-      data:
-        _operationType: 0
-        _radius: 4
-        _center: {x: 6.300357, y: 1.0904593, z: 7}
-    - rid: 6956713594863222786
-      type: {class: SphereOp, ns: Marching.Operations, asm: ClayzeRuntime}
-      data:
-        _operationType: 0
-        _radius: 4
-        _center: {x: 1.2571931, y: 5.09333, z: 7}
+    RefIds: []
