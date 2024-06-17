@@ -97,10 +97,10 @@ namespace Clayze
 
             if (Enclosed && (x == 0 || x == _size || y == 0 || y == _size || z == 0 || z == _size))
             {
-                return 1;
+                return 1f;
             }
 
-            _f = 1;
+            _f = 1f;
             foreach (var operation in operationObjects)
             {
                 //todo: keep a list of active objects
@@ -129,6 +129,33 @@ namespace Clayze
             return _f;
         }
 
+        public float SampleWorldPoint(Vector3 point)
+        {
+            //todo: change size to local/world.
+            float s = _size / pointsPerUnit;
+            if (Enclosed && (point.x <= 0 || point.x >= s || point.y <= 0 || point.y >= s || point.z == 0 ||
+                             point.z >= s)){
+                return 1f;
+            }
+            foreach (var op in _opCol)
+            {
+                if (op.OperationType == OperationType.Pass)
+                {
+                    continue;
+                }
+                else if (op.OperationType == OperationType.SetLocal)
+                {
+                    var l = WorldToLocal(point);
+                    op.Sample(this, l.x, l.y, l.z, ref _f);
+                    continue;
+                }
+
+                op.Sample(point, ref _f);
+            }
+
+            return _f;
+        }
+
         public Vector3 VolumeToWorld(Vector3Int volPos)
         {
             return transform.TransformPoint(((Vector3)volPos / pointsPerUnit));
@@ -149,9 +176,9 @@ namespace Clayze
         public bool IsInBounds(Vector3 worldPoint)
         {
             var local = WorldToLocal(worldPoint);
-            return (local.x >= 0 && local.x < (_size / pointsPerUnit) &&
-                    local.y >= 0 && local.y < (_size / pointsPerUnit) &&
-                    local.z >= 0 && local.z < (_size / pointsPerUnit));
+            return (local.x >= 0 && local.x < (_size) &&
+                    local.y >= 0 && local.y < (_size) &&
+                    local.z >= 0 && local.z < (_size));
         }
 
         public bool IsInBounds(Vector3 min, Vector3 max)
