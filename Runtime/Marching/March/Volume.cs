@@ -129,9 +129,9 @@ namespace Clayze
             return _f;
         }
 
+        //todo: Bounds test of the operation
         public float SampleWorldPoint(Vector3 point)
         {
-            //todo: change size to local/world.
             float s = _size / pointsPerUnit;
             if (Enclosed && (point.x <= 0 || point.x >= s || point.y <= 0 || point.y >= s || point.z == 0 ||
                              point.z >= s)){
@@ -149,7 +149,6 @@ namespace Clayze
                     op.Sample(this, l.x, l.y, l.z, ref _f);
                     continue;
                 }
-
                 op.Sample(point, ref _f);
             }
 

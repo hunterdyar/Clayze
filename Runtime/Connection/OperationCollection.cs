@@ -98,6 +98,10 @@ namespace Clayze
 					_operations.Clear();
 					ForceRefresh?.Invoke();
 					break;
+				case MessageType.Changed:
+				case MessageType.ChangeConfirm:
+					//ignore, these are for sync properties.
+					break;
 				default:
 					Debug.LogError($"{messageType} not handled by client.");
 					break;

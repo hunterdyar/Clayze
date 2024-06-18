@@ -5,24 +5,19 @@ namespace SyncedProperty
 {
 	public class SyncPropertyInitializer : MonoBehaviour
 	{
-		public SyncedPropertyCollection[] Collections;
+		public SyncedPropertyCollection PropertyCollection;
 		[SerializeField] private float updateFrequency = 0.2f;
 		private float updateTimer;
 		private void Awake()
 		{
-			foreach (var collection in Collections)
-			{
-				collection.InitAndConnect();
-			}
+			PropertyCollection.InitAndConnect();
 		}
 
 		private void Update()
 		{
 #if !UNITY_WEBGL || UNITY_EDITOR
-			foreach (var collection in Collections)
-			{
-				collection.DispatchMessageQueue();
-			}
+
+			PropertyCollection.DispatchMessageQueue();
 #endif
 			updateTimer -= Time.deltaTime;
 		}
@@ -34,26 +29,20 @@ namespace SyncedProperty
 				return;
 			}
 
-			updateTimer = updateFrequency;
-			foreach (var col in Collections)
+			if (PropertyCollection.ChangesSent == 0)
 			{
-				col.SendChangesIfNeeded();
+				updateTimer = updateFrequency;
+				PropertyCollection.SendChangesIfNeeded();
 			}
 		}
 
 		private void OnApplicationQuit()
 		{
-			foreach (var collection in Collections)
-			{
-				collection.Stop();
-			}
+			PropertyCollection.Stop();
 		}
 		private void OnDestroy()
 		{
-			foreach (var collection in Collections)
-			{
-				collection.Stop();
-			}
+			PropertyCollection.Stop();
 		}
 	}
 }

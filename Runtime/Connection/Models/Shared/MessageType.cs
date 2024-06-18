@@ -9,5 +9,6 @@
 		IDReply = 4,
 		Clear = 5,
 		Changed = 6,
+		ChangeConfirm = 7,
 	}
 }

@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using Clayze;
 using Clayze.Connection;
 using Connection;
@@ -21,8 +20,11 @@ namespace SyncedProperty
 		//what should the base class here be?
 		private List<SyncableBase> _values = new List<SyncableBase>();
 		//todo: cache id lookup with dictionary.
+		public int ChangesSent => _changesSent;
+		private int _changesSent;
 		public void InitAndConnect()
 		{
+			_changesSent = 0;
 			//todo: check that all ID's are unique.
 			if (_socketSettings.connectionURL == "")
 			{
@@ -78,8 +80,9 @@ namespace SyncedProperty
 					data.CopyTo(packet, 5);
 					if (ConnectionStatus == ConnectionStatus.Connected)
 					{
-						//must be local only.... but we should check that.
+						//must be local only.... but we should check that
 						_websocket.Send(packet);
+						_changesSent++;
 					}
 					else
 					{
@@ -111,6 +114,9 @@ namespace SyncedProperty
 					break;
 				case MessageType.Changed:
 					PropertyChanged(data);
+					break;
+				case MessageType.ChangeConfirm:
+					_changesSent--;
 					break;
 				default:
 					Debug.LogError($"{messageType} not handled by client.");
