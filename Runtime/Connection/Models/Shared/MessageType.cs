@@ -10,5 +10,6 @@
 		Clear = 5,
 		Changed = 6,
 		ChangeConfirm = 7,
+        Event = 8
 	}
 }

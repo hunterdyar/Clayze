@@ -15,6 +15,8 @@ namespace Clayze
 	public class OperationCollection : ScriptableObject
 	{
 		public Action<ConnectionStatus> OnConnectionStatusChanged;
+
+		public Action<byte[]> OnEventReceived;
 		//Network
 		public ConnectionStatus ConnectionStatus = ConnectionStatus.Idle;
 		public SocketSettings _socketSettings;
@@ -102,6 +104,9 @@ namespace Clayze
 				case MessageType.ChangeConfirm:
 					//ignore, these are for sync properties.
 					break;
+                case MessageType.Event:
+                    OnEventReceived?.Invoke(data);
+	                break;
 				default:
 					Debug.LogError($"{messageType} not handled by client.");
 					break;

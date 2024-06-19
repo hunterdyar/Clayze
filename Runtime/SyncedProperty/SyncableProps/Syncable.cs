@@ -1,5 +1,7 @@
 using System;
 using UnityEngine;
+using UnityEngine.Events;
+using UnityEngine.UI;
 
 #if UNITY_EDITOR
 using UnityEditor;
@@ -55,17 +57,25 @@ namespace SyncedProperty
 
 
 	}
+
 	public abstract class Syncable<T> : SyncableBase where T : IEquatable<T>
 	{
 		//This will a single-value version of the operation class.
 		//We can use this for "Normal" net-code behaviour, like sync-ing transforms for previewing each other in a multi-user scene.
-		
+
 		//A separate websocket connection will be created for a list of values, and it should use a unique property endpoint, as values will bee saved by index.
 		public Action<T> OnChange;
+
 		public T Value => _value;
 		[SerializeField]
 		protected T _value;
 
+		public UnityEvent<T> OnChangeUnityEvent;
+		
+		public Syncable()
+		{
+			OnChange += OnChangeUnityEvent.Invoke;
+		}
 		public virtual void SetValue(T newValue, bool fromLocal = true)
 		{
 			IsDirty = fromLocal;

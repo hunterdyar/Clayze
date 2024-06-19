@@ -50,7 +50,6 @@ namespace SyncedProperty
 				Debug.Log($"Connection closed for {name}! Code: {e}. URL: {_socketSettings.connectionURL}");
 				SetConnectionStatus(ConnectionStatus.Disconnected);
 			};
-			
 
 			_websocket.OnMessage += OnReceiveFromServer;
 
@@ -118,9 +117,26 @@ namespace SyncedProperty
 				case MessageType.ChangeConfirm:
 					_changesSent--;
 					break;
+				case MessageType.Event:
+					EventRecieved(data);
+					break;
 				default:
 					Debug.LogError($"{messageType} not handled by client.");
 					break;
+			}
+		}
+
+		private void EventRecieved(byte[] data)
+		{
+
+			//get the ID of the event object from data
+			uint id = BitConverter.ToUInt32(new ArraySegment<byte>(data, 1, 4));
+			//find it in our dictionary (er, list)
+			var prop = _values.Find(x => x.ID == id);
+			//if this prop is an eventProp, invoke it.
+			if (prop is SyncEvent evnt)
+			{
+				evnt.Invoke();
 			}
 		}
 
