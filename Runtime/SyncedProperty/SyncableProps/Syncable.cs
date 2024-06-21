@@ -74,7 +74,7 @@ namespace SyncedProperty
 		
 		public Syncable()
 		{
-			OnChange += OnChangeUnityEvent.Invoke;
+			OnChange += (v) => OnChangeUnityEvent.Invoke(v);
 		}
 		public virtual void SetValue(T newValue, bool fromLocal = true)
 		{
