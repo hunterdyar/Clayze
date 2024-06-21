@@ -233,7 +233,7 @@ namespace Clayze
 			_operations.Add(op);
 			int opindex = _operations.Count - 1;
 		#if UNITY_EDITOR
-			//weird bug chasing. i fixed it but just testing in case it reappears
+			//weird bug chasing. i think i fixed it but just testing in case it reappears
 			Assert.AreEqual(_operations.IndexOf(op),opindex);
 		#endif
 			_operationsWaitingForIndex.Enqueue(opindex);
@@ -274,16 +274,22 @@ namespace Clayze
 
 		public void Remove(IOperation op, bool local = true)
 		{
-			_operations.Remove(op);
-			//I guess this would get us to resample this region so....
+            _operations.Remove(op);
+            var packet = new byte[5];
+            BitConverter.GetBytes(op.UniqueID).CopyTo(packet, 1);
+            packet[0] = (byte)MessageType.Remove;
+            if (ConnectionStatus == ConnectionStatus.Connected)
+            {
+                //must be local only.... but we should check that.
+                _websocket.Send(packet);
+            }
+            else
+            {
+                Debug.LogWarning("Local only remove!");
+            }
+            
+			//This will get us to resample this region so....
 			OperationChanged?.Invoke(op);
-
-		}
-
-		public void RemoveAt(int index, bool local = true)
-		{
-			_operations.RemoveAt(index);
-			//UH gotta tell volume to hardrefresh
 		}
 
 		public void UpdateValue(IOperation oldVal, IOperation newVal, bool local = true)
