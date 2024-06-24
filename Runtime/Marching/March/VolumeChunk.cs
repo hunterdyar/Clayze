@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections;
+using Marching.March;
 using Unity.Collections;
 using UnityEngine;
 using UnityEngine.Rendering;
@@ -13,11 +14,11 @@ namespace Clayze.Marching
 		//setup
 		public bool ConstantRefresh;
 		private Volume _volume;
-		private VolumeRenderer _volumeRenderer;
+		private IVolumeRenderer _volumeRenderer;
 
 		private ComputeShader MarchingCubeCompute => _volumeRenderer.MarchingCompute;
 		private float SurfaceLevel => _volumeRenderer.SurfaceLevel;
-		private float Smoothness => _volumeRenderer.smoothness;
+		private float Smoothness => _volumeRenderer.Smoothness;
 		
 		public Vector3Int PointsMin { get; private set; }
 		public Vector3Int PointsMax { get; private set; }
@@ -48,7 +49,7 @@ namespace Clayze.Marching
 		private bool _tryAsync;
 
 		//points cache for physics/sample operationns
-		private NativeArray<float> _pointsCache = new NativeArray<float>();
+	//	private NativeArray<float> _pointsCache = new NativeArray<float>();
 		private Action<AsyncGPUReadbackRequest> RequestUpdatePointsCacheCallback;
 		private bool _pointsCacheIsDirty;
 		
@@ -78,13 +79,14 @@ namespace Clayze.Marching
 			};
 		}
 
-		public void Initialize(VolumeRenderer volumeRenderer, Volume volume, Vector3Int min, Vector3Int max)
+		public void Initialize(IVolumeRenderer volumeRenderer, Volume volume, Vector3Int min, Vector3Int max)
 		{
 			_volumeRenderer = volumeRenderer;
 			_volume = volume;
 			PointsMin = min;
 			PointsMax = max;
 			Size = max.x-min.x;
+			
 			
 			CreateBuffers();
 			ConfigureThreadsPerAxis();
@@ -129,7 +131,7 @@ namespace Clayze.Marching
 				}
 			}
 
-			_pointsCache = new NativeArray<float>(numPoints*4, Allocator.Persistent);
+			//_pointsCache = new NativeArray<float>(numPoints*4, Allocator.Persistent);
 		}
 
 		private void UpdatePointsCache()
@@ -140,7 +142,7 @@ namespace Clayze.Marching
 			}
 			if (_pointsCacheIsDirty)
 			{
-				AsyncGPUReadback.RequestIntoNativeArray(ref _pointsCache, _pointsBuffer, RequestUpdatePointsCacheCallback);
+			//	AsyncGPUReadback.RequestIntoNativeArray(ref _pointsCache, _pointsBuffer, RequestUpdatePointsCacheCallback);
 			}
 		}
 
@@ -151,19 +153,21 @@ namespace Clayze.Marching
 			int y = volumePos.y;
 			int z = volumePos.z;
 			int id = z * Size * Size + y * Size + x;
-			if (id >= 0 && id < _pointsCache.Length)
-			{
-				return _pointsCache[id];
-			}
-			else
-			{
-				Debug.LogWarning("Getting point from chunk that is out of bounds.");
-				return 0;
-			}
+			// if (id >= 0 && id < _pointsCache.Length)
+			// {
+			// 	return _pointsCache[id];
+			// }
+			// else
+			// {
+			// 	Debug.LogWarning("Getting point from chunk that is out of bounds.");
+			// 	return 0;
+			// }
 			//get the position of the v3 between local min and local max...
 			//convert to 1d with size...
 			//get from cache
 			//Size
+			throw new NotImplementedException("GetPoint not yet implemented, sorry");
+			return 0;
 		}
 
 		private void ConfigureThreadsPerAxis()
@@ -310,10 +314,10 @@ namespace Clayze.Marching
 				_computeCommandBuffer.Release();
 			}
 
-			if (_pointsCache != null)
-			{
-				_pointsCache.Dispose();
-			}
+			// if (_pointsCache != null)
+			// {
+			// 	_pointsCache.Dispose();
+			// }
 		}
 
 		public ComputeBuffer PointsBuffer()

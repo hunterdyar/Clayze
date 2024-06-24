@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Marching.March;
 using UnityEngine;
 using UnityEngine.Rendering;
+using UnityEngine.Serialization;
 
 namespace Clayze.Marching
 {
@@ -16,7 +18,7 @@ namespace Clayze.Marching
 	///   - 
 	/// </summary>
 	[RequireComponent(typeof(Volume))]
-	public class VolumeRenderer : MonoBehaviour
+	public class VolumeRenderer : MonoBehaviour, IVolumeRenderer
 	{
 		public Volume Volume => _volume;
 		private Volume _volume;
@@ -30,9 +32,13 @@ namespace Clayze.Marching
 		private int _chunkSize;//points per chunk in volume space.
 
 		private readonly Dictionary<Vector3Int, VolumeChunk> _chunks = new Dictionary<Vector3Int, VolumeChunk>();
-		[Header("Pass-Through Configuration")] public ComputeShader MarchingCompute;
-		[Range(0, 1)] public float smoothness;
-		public float SurfaceLevel = 0;
+
+		public ComputeShader MarchingCompute => _marchingCompute;
+		[Header("Pass-Through Configuration")][SerializeField] private ComputeShader _marchingCompute;
+		public float Smoothness => _smoothness;
+		[Range(0, 1),SerializeField] private float _smoothness;
+		public float SurfaceLevel => _surfaceLevel;
+		[SerializeField] private float _surfaceLevel = 0.01f;
 
 		private readonly List<VolumeChunk> _chunkNeedingUpdate = new List<VolumeChunk>();
 		//Debugging
