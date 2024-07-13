@@ -13,6 +13,7 @@ namespace Clayze.Ink.Viewer
 			_lineRenderer = GetComponent<LineRenderer>();
 			_lineRenderer.positionCount = 0;
 			_lineRenderer.widthMultiplier = 0.04f;
+			_lineRenderer.useWorldSpace = false;
 		}
 
 		public void SetStroke(Stroke s)

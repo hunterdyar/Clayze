@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using SyncedProperty;
 using UnityEngine;
 
 namespace Clayze.Ink
@@ -22,6 +23,7 @@ namespace Clayze.Ink
 		private InkManager _manager;
 		
 		private Stroke[] _activeStrokes = new Stroke[255];
+		
 		public InkCanvas(InkManager manager)
 		{
 			_manager = manager;

@@ -20,6 +20,8 @@ namespace Clayze.Ink
 		private Dictionary<Stroke, List<Vector2>> _addBuffer = new Dictionary<Stroke, List<Vector2>>();
 		private bool _canAdd = true;
 		private byte _lastPenID = 0;
+
+		public SyncTransformMatrix[] CanvasTransforms;
 		private void Awake()
 		{
 			_canvases = new Dictionary<byte, InkCanvas>();
@@ -195,7 +197,20 @@ namespace Clayze.Ink
 			}
 			//add to a buffer and send once previous message is handshaked.... per stroke
 		}
-		
+
+		public SyncTransformMatrix GetCanvasMatrix(byte matrixID)
+		{
+			if (matrixID < CanvasTransforms.Length)
+			{
+				return CanvasTransforms[matrixID];
+			}
+			else
+			{
+				Debug.LogWarning("Runtime creation of matrices not supported. Suggestion is to pre-populate arrays.");
+			}
+
+			return null;
+		}
 		
 		public byte GetUniquePenID()
 		{
