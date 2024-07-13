@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using Clayze;
 using Clayze.Connection;
 using Connection;
+using Connection.Models;
+using JetBrains.Annotations;
 using NativeWebSocket;
 using UnityEngine;
 using UnityEngine.Assertions;
@@ -22,6 +24,7 @@ namespace SyncedProperty
 		//todo: cache id lookup with dictionary.
 		public int ChangesSent => _changesSent;
 		private int _changesSent;
+		[CanBeNull] private IInkMessageHandler _inkManager;
 		public void InitAndConnect()
 		{
 			_changesSent = 0;
@@ -51,18 +54,22 @@ namespace SyncedProperty
 				SetConnectionStatus(ConnectionStatus.Disconnected);
 			};
 			
-
 			_websocket.OnMessage += OnReceiveFromServer;
 
 			SetConnectionStatus(ConnectionStatus.AttemptingToConnect);
 			_websocket.Connect();
 		}
-
+		
 		[ContextMenu("Ping Hello")]
 		public void SendHello()
 		{
 			byte[] hello = new byte[] { (byte)MessageType.Echo, 0, 0, 0, 0};
 			_websocket.Send(hello);
+		}
+
+		public void SetInkMessageHandler(IInkMessageHandler handler)
+		{
+			_inkManager = handler;
 		}
 		public void SendChangesIfNeeded()
 		{
@@ -94,6 +101,18 @@ namespace SyncedProperty
 			}
 		}
 
+		/// <summary>
+		/// You can bork things up if you don't format the message correctly.
+		/// First byte must be MessageType, it's assumed you've done that here, so we don't have to spend time reallocating and copying an array.
+		/// </summary>
+		public void SendMessageRaw(byte[] data)
+		{
+			if (ConnectionStatus == ConnectionStatus.Connected)
+			{
+				_websocket.Send(data);
+			}
+		}
+
 		private void OnReceiveFromServer(byte[] data)
 		{
 			var messageType = (MessageType)data[0];
@@ -121,12 +140,24 @@ namespace SyncedProperty
 				default:
 					Debug.LogError($"{messageType} not handled by client.");
 					break;
+				//not our house, not our problem as prop manager, just as connection. pass ink-related ntoes along.
+				case MessageType.InkStart:
+					_inkManager?.OnInkStartFromServer(data);
+					break;
+				case MessageType.InkAdd:
+					_inkManager?.OnInkAddFromServer(data);
+					break;
+				case MessageType.InkEnd:
+					_inkManager?.OnInkEndFromServer(data);
+					break;
+				case MessageType.InkNewCanvas:
+					_inkManager?.OnInkNewCanvasFromServer(data);
+					break;
 			}
 		}
 
 		private void PropertyChanged(byte[] data)
 		{
-			
 			uint id = BitConverter.ToUInt32(new ArraySegment<byte>(data, 1, 4));
 			var prop = _values.Find(x => x.ID == id);
 			if (prop != null)

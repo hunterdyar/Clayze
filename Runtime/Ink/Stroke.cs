@@ -52,5 +52,11 @@ namespace Clayze.Ink
 				Widths[^1] = pressureValue;
 			}
 		}
+
+		public void AddPoints(Vector2[] points)
+		{
+			Points.AddRange(points);
+			//update
+		}
 	}
 }
