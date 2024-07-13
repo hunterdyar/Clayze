@@ -6,5 +6,6 @@
 		public void OnInkEndFromServer(byte[] data);
 		public void OnInkAddFromServer(byte[] data);
 		public void OnInkNewCanvasFromServer(byte[] data);
+		public void OnInkAddConfirm();
 	}
 }

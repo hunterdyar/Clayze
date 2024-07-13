@@ -14,6 +14,7 @@
 		InkAdd = 17,
 		InkEnd = 18,
 		InkNewCanvas = 19,
+		InkAddConfirm = 20,
 		//clear canvas
 		//remove stroke
 		//... erase?

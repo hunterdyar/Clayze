@@ -153,6 +153,9 @@ namespace SyncedProperty
 				case MessageType.InkNewCanvas:
 					_inkManager?.OnInkNewCanvasFromServer(data);
 					break;
+				case MessageType.InkAddConfirm:
+					_inkManager?.OnInkAddConfirm();
+					break;
 			}
 		}
 

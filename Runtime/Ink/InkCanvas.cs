@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace Clayze.Ink
@@ -13,45 +14,65 @@ namespace Clayze.Ink
 		public readonly int Width;
 		public readonly int Height;
 		public readonly int MatrixID;
-		
+		public readonly byte ID;
 		public List<Stroke> Strokes;
+
+		public Action<Stroke> OnNewStroke;
+		public InkManager Manager => _manager;
+		private InkManager _manager;
 		
 		private Stroke[] _activeStrokes = new Stroke[255];
-		public InkCanvas()
+		public InkCanvas(InkManager manager)
 		{
+			_manager = manager;
 			Width = Screen.width;
 			Height = Screen.height;
 			MatrixID = 0;
 			Strokes = new List<Stroke>();
+			ID = 0;
 		}
 
-		public InkCanvas(int width, int height, int matrixID)
+		public InkCanvas(InkManager manager, byte id, int width, int height, int matrixID)
 		{
+			_manager = manager;
 			Strokes = new List<Stroke>();
 			this.Width = width;
 			this.Height = height;
 			this.MatrixID = matrixID;
+			this.ID = id;
 		}
-
-		public Stroke StartStroke(byte pen, Color color, float width = 1)
+		
+		public Stroke StartStroke(byte pen, bool local, Color color, float width = 1)
 		{
-			var s = new Stroke(this, width,color);
+			var s = new Stroke(this, pen, local, width,color);
 			Strokes.Add(s);
 			_activeStrokes[pen] = s;
+			if (local)
+			{
+				_manager.OnNewStrokeLocal(s);
+			}
+			OnNewStroke?.Invoke(s);
 			return s;
 		}
-
-		public void AddPoint(byte pen, Vector2 point)
+		
+		public void AddPointFromServer(byte pen, Vector2 point)
 		{
 			_activeStrokes[pen].AddPoint(point);
 		}
 
-		public void AddPoints(byte pen, Vector2[] points)
+		public void AddPointsFromServer(byte pen, Vector2[] points)
 		{
 			_activeStrokes[pen].AddPoints(points);
 		}
+		
 		public void EndStroke(byte pen)
 		{
+			
+			if (_activeStrokes[pen].Local)
+			{
+				_manager.OnStrokeEndLocal(_activeStrokes[pen]);
+			}
+
 			_activeStrokes[pen] = null;
 		}
 	}

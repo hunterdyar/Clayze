@@ -1,19 +1,25 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace Clayze.Ink
 {
 	public class Stroke
 	{
+		//events
+		public Action<Vector2> OnPointAdded;
 		//injected references. local to this unity scene or such.
 		public InkCanvas MyCanvas;
+		public byte MyPenID;
 		
 		//unchanging settings
 		public Color Color;
 		public float Thickness;
 
+		public bool Local;
 		//modified settings
 		public List<Vector2> Points;
+		
 		
 		/// <summary>
 		/// Widths are an evenly spaced set of widths, unrelated to a respective point.
@@ -21,25 +27,39 @@ namespace Clayze.Ink
 		/// </summary>
 		public List<float> Widths;
 		
-		public Stroke(InkCanvas canvas, float thickness, Color color)
+		public Stroke(InkCanvas canvas, byte penID, bool local, float thickness, Color color)
 		{
 			Color = color;
 			this.Thickness = thickness;
 			MyCanvas = canvas;
 			Points = new List<Vector2>();
 			Widths = new List<float>();
+			Local = local;
+			MyPenID = penID;
 		}
 
 		public void AddPoint(Vector3 point, float width = 1)
 		{
 			Points.Add(point);
 			Widths.Add(width);
+			OnPointAdded?.Invoke(point); //update view
+			if (Local)
+			{
+				//server needs to update
+				MyCanvas.Manager.OnPointAddLocal(this,point);//update server
+			}
 		}
 
 		public void AddPoint(float x, float y, float width = 1)
 		{
-			Points.Add(new Vector2(x,y));
+			var p = new Vector2(x, y);
+			Points.Add(p);
 			Widths.Add(width);
+			OnPointAdded?.Invoke(p); //update view;
+			if (Local)
+			{
+				MyCanvas.Manager.OnPointAddLocal(this,p);//update server
+			}
 		}
 
 		public void UpdateLastPoint(float xValue, float yValue, float pressureValue)
@@ -56,7 +76,26 @@ namespace Clayze.Ink
 		public void AddPoints(Vector2[] points)
 		{
 			Points.AddRange(points);
-			//update
+			if (Local)
+			{
+				foreach (var point in points)
+				{
+					OnPointAdded?.Invoke(point);
+					MyCanvas.Manager.OnPointAddLocal(this,point);
+				}
+			}
+			else
+			{
+				foreach (var point in points)
+				{
+					OnPointAdded?.Invoke(point);
+				}
+			}
+		}
+
+		public void Finish()
+		{
+			MyCanvas.EndStroke(MyPenID);
 		}
 	}
 }

@@ -1,10 +1,5 @@
 #if ENABLE_INPUT_SYSTEM
-
-using System;
-using System.Collections;
-using System.Collections.Generic;
 using Clayze.Ink;
-using Codice.Client.BaseCommands;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -54,9 +49,11 @@ public class PenInput : MonoBehaviour
             if (_currentStroke != null)
             {
                 //end
+                _currentStroke.Finish();
+                _currentStroke = null;
             }
 
-            _currentStroke = _currentCanvas.StartStroke(_id,PenColor,PenThickness);
+            _currentStroke = _currentCanvas.StartStroke(_id,true,PenColor,PenThickness);
         }
         
         //2/3 drag. (also first frame)
@@ -68,6 +65,7 @@ public class PenInput : MonoBehaviour
             if (lastAddTime >= minTime)
             {
                 _currentStroke.AddPoint(pen.position.x.value, pen.position.y.value, pen.pressure.value);
+                lastAddTime = 0;
             }
             else
             {
@@ -80,8 +78,11 @@ public class PenInput : MonoBehaviour
         if (pen.tip.wasReleasedThisFrame)
         {
             //finish!
-            _currentStroke = null;
-            // _currentCanvas.EndStroke(_currentStroke);
+            if (_currentStroke != null)
+            {
+                _currentStroke.Finish();
+                _currentStroke = null;
+            }
         }
     }
 }
