@@ -10,5 +10,13 @@
 		Clear = 5,
 		Changed = 6,
 		ChangeConfirm = 7,
+		InkStart = 16,
+		InkAdd = 17,
+		InkEnd = 18,
+		InkNewCanvas = 19,
+		InkAddConfirm = 20,
+		//clear canvas
+		//remove stroke
+		//... erase?
 	}
 }
