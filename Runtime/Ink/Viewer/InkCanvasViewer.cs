@@ -26,6 +26,7 @@ namespace Clayze.Ink.Viewer
 
 		private void OnMatrixChange(Matrix4x4 matrix)
 		{
+			//todo: quickly Lerp.
 			transform.SetFromMatrix(matrix);
 		}
 		
