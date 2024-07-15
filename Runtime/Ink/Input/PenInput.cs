@@ -9,12 +9,16 @@ public class PenInput : MonoBehaviour
     private Stroke _currentStroke;
     private byte _id;
 
-    private InkPoint NewPointAtCurrent => new InkPoint(Pen.current.position.x.value, Pen.current.position.y.value, Stroke.WidthByteFromFloat(Pen.current.pressure.value));
+    private InkPoint NewPointAtCurrent => new InkPoint(Pen.current.position.x.value, Pen.current.position.y.value, GetCurrentPressure());
     [Header("Pen Style Configuration")]
     public Color PenColor = Color.black;
     public float PenThickness = 0.05f;
 
+    [Tooltip("0, pen will always be 'pen thickness' width. Set to 1, this then the pressure controls the width as a percentage.")]
     [Range(0, 1)] public float PressureControlPercentage = 0;
+
+    [Tooltip("The pressure value from the pen is evalated through this function.")]
+    public AnimationCurve PressureCurve = AnimationCurve.Linear(0, 0, 1, 1);
     //settings
     [Header("Pen Settings")]
     [Tooltip("Distance pen must move in pen (pixel/screen/canvas) space beffore a new point is added.")]
@@ -37,6 +41,17 @@ public class PenInput : MonoBehaviour
        _id = _manager.GetUniquePenID();
     }
 
+    byte GetCurrentPressure()
+    {
+        if (PressureControlPercentage == 0)
+        {
+            return 255;
+        }
+
+        var input = PressureCurve.Evaluate(Pen.current.pressure.value);
+        var p = 1 - PressureControlPercentage + PressureControlPercentage * (input);
+        return Stroke.WidthByteFromFloat(p);
+    }
     // Update is called once per frame
     void Update()
     {
@@ -62,7 +77,7 @@ public class PenInput : MonoBehaviour
                 _currentStroke = null;
             }
 
-            _currentStroke = _currentCanvas.StartStroke(_id, true, PenColor, PenThickness,PressureControlPercentage);
+            _currentStroke = _currentCanvas.StartStroke(_id, true, PenColor, PenThickness);
         }
         
         //2/3 drag. (also first frame)

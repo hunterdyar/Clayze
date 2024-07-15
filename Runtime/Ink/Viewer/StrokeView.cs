@@ -24,7 +24,6 @@ namespace Clayze.Ink.Viewer
 			_lineRenderer.startColor = s.Color;
 			_lineRenderer.endColor = s.Color;
 			_lineRenderer.widthMultiplier = s.Thickness;
-			_pressureControlAmount = s.PressureControlPercentage;
 		}
 
 		private void OnPointAdded(InkPoint p)
@@ -50,7 +49,7 @@ namespace Clayze.Ink.Viewer
 			for (int i = 0; i < c; i++)
 			{
 				d += _stroke.Points[i].DistanceFromPrevious;
-				_widthsCurve.AddKey(d/_stroke.TotalLength, 1-_pressureControlAmount + _pressureControlAmount*(_stroke.Points[i].Width / (float)255));
+				_widthsCurve.AddKey(d/_stroke.TotalLength, _stroke.Points[i].Width / (float)255);
 			}
 
 			_lineRenderer.widthCurve = _widthsCurve;

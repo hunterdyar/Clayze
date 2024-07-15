@@ -15,7 +15,6 @@ namespace Clayze.Ink
 		//unchanging settings
 		public Color Color;
 		public float Thickness;//base thickness
-		public float PressureControlPercentage = 1;
 
 		public bool Local;
 		
@@ -29,11 +28,10 @@ namespace Clayze.Ink
 		/// </summary>
 		public List<byte> Widths;
 		
-		public Stroke(InkCanvas canvas, byte penID, bool local, float thickness, Color color, float pressureControlPercentage)
+		public Stroke(InkCanvas canvas, byte penID, bool local, float thickness, Color color)
 		{
 			Color = color;
 			this.Thickness = thickness;
-			this.PressureControlPercentage = Mathf.Clamp01(pressureControlPercentage);
 			MyCanvas = canvas;
 			Points = new List<InkPoint>();
 			Widths = new List<byte>();

@@ -12,7 +12,9 @@ namespace SyncedProperty
 	{
 		[HideInInspector] public bool IsDirty;
 		public uint ID;
+		public bool IsInitialOwner;
 		public bool IsOwner;
+		private SyncedPropertyCollection _propertyCollection;
 		public abstract byte[] ToBytes();
 		public abstract void SetFromBytes(byte[] data);
 
@@ -20,6 +22,33 @@ namespace SyncedProperty
 		{
 			SetFromBytes(data.ToArray());
 			IsDirty = false;
+		}
+
+		public void Init(SyncedPropertyCollection collection)
+		{
+			if (_propertyCollection != null)
+			{
+				Debug.LogWarning("Warning. Property should not belong to multiple sync property collections at the same time. This will cause unexpected behaviour.");
+			}
+			_propertyCollection = collection;
+			IsOwner = IsInitialOwner;
+		}
+
+		public void ReleaseOwnership()
+		{
+			IsOwner = false;
+		}
+
+		public void TakeOwnership()
+		{
+			if (_propertyCollection != null)
+			{
+				_propertyCollection.TakeOwnership(this);
+			}
+			else
+			{
+				Debug.LogError($"Sync Property {name} does not belong to any propertycollection, cannot take ownership via." );
+			}
 		}
 
 #if UNITY_EDITOR
@@ -52,8 +81,7 @@ namespace SyncedProperty
 		public abstract bool TestSerialization();
 
 #endif
-
-
+		
 	}
 	public abstract class Syncable<T> : SyncableBase where T : IEquatable<T>
 	{

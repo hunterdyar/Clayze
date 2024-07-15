@@ -44,9 +44,9 @@ namespace Clayze.Ink
 			this.ID = id;
 		}
 		
-		public Stroke StartStroke(byte pen, bool local, Color color, float thickness = 1, float pressureControl = 0)
+		public Stroke StartStroke(byte pen, bool local, Color color, float thickness = 1)
 		{
-			var s = new Stroke(this, pen, local, thickness, color,pressureControl);
+			var s = new Stroke(this, pen, local, thickness, color);
 			Strokes.Add(s);
 			_activeStrokes[pen] = s;
 			if (local)

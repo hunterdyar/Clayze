@@ -96,11 +96,10 @@ namespace Clayze.Ink
 			float green = BitConverter.ToSingle(data, 7);
 			float blue = BitConverter.ToSingle(data, 11);
 			float thickness = BitConverter.ToSingle(data, 15);
-			float pressureControl = BitConverter.ToSingle(data, 19);
 			var color = new Color(red, green, blue, 1);
 			if (TryGetCanvas(canvasID, out var ic))
 			{
-				ic.StartStroke(penID, false, color, thickness, pressureControl);
+				ic.StartStroke(penID, false, color, thickness);
 			}
 		}
 
@@ -165,7 +164,7 @@ namespace Clayze.Ink
 
 		public void OnNewStrokeLocal(Stroke s)
 		{
-			var data = new byte[23];
+			var data = new byte[19];
 			data[0] = (byte)MessageType.InkStart;
 			data[1] = (byte)s.MyCanvas.ID;
 			data[2] = s.MyPenID;
@@ -173,7 +172,6 @@ namespace Clayze.Ink
 			Array.Copy(BitConverter.GetBytes(s.Color.g), 0, data, 7, 4);
 			Array.Copy(BitConverter.GetBytes(s.Color.b), 0, data, 11, 4);
 			Array.Copy(BitConverter.GetBytes(s.Thickness),0,data,15,4);
-			Array.Copy(BitConverter.GetBytes(s.PressureControlPercentage), 0, data, 19, 4);
 			_propertyCollection.SendMessageRaw(data);
 		}
 

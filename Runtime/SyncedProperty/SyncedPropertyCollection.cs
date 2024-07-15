@@ -27,6 +27,12 @@ namespace SyncedProperty
 		[CanBeNull] private IInkMessageHandler _inkManager;
 		public void InitAndConnect()
 		{
+			//Initialize & inject dependency.
+			foreach (var prop in _values)
+			{
+				prop.Init(this);
+			}
+			
 			_changesSent = 0;
 			//todo: check that all ID's are unique.
 			if (_socketSettings.connectionURL == "")
@@ -65,6 +71,18 @@ namespace SyncedProperty
 		{
 			byte[] hello = new byte[] { (byte)MessageType.Echo, 0, 0, 0, 0};
 			_websocket.Send(hello);
+		}
+
+		/// <summary>
+		/// Sends a command over the server for all other currently connected clients to release ownership of a property.
+		/// </summary>
+		public void TakeOwnership(SyncableBase property)
+		{
+			property.IsOwner = true;
+			var packet = new byte[5];
+			packet[0] = (byte)MessageType.TakeOwnership;
+			BitConverter.GetBytes(property.ID).CopyTo(packet, 1);
+			_websocket.Send(packet);
 		}
 
 		public void SetInkMessageHandler(IInkMessageHandler handler)
@@ -137,8 +155,19 @@ namespace SyncedProperty
 				case MessageType.ChangeConfirm:
 					_changesSent--;
 					break;
-				default:
-					Debug.LogError($"{messageType} not handled by client.");
+				case MessageType.TakeOwnership:
+					//we have been told we now own something by the server. This is not implemented yet.
+					break;
+				case MessageType.ReleaseOwnership:
+					uint id = BitConverter.ToUInt32(new ArraySegment<byte>(data, 1, 4));
+					var prop = _values.Find(x => x.ID == id);
+					if (prop != null)
+					{
+						if (prop.IsOwner)
+						{
+							prop.ReleaseOwnership();
+						}
+					}
 					break;
 				//not our house, not our problem as prop manager, just as connection. pass ink-related ntoes along.
 				case MessageType.InkStart:
@@ -155,6 +184,9 @@ namespace SyncedProperty
 					break;
 				case MessageType.InkAddConfirm:
 					_inkManager?.OnInkAddConfirm();
+					break;
+				default:
+					Debug.LogError($"{messageType} not handled by client.");
 					break;
 			}
 		}
