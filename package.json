@@ -31,8 +31,8 @@
         "path": "Samples~/Basic"
     },
     {
-        "displayName": "Utilities",
-        "description": "Helpful MonoBehaviours",
-        "path": "Samples~/Utility"
+        "displayName": "Ink",
+        "description": "Setup for synced 2D Drawing",
+        "path": "Samples~/Ink"
     }]
 }
