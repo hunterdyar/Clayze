@@ -29,17 +29,23 @@ namespace Clayze.Marching.Operations
 			_volume = volume;
 			size = volume.Size;
 			_points = new float[size * size * size];//width*height*depth
+			Bake();
+		}
+
+		public void Bake()
+		{
 			for (int x = 0; x < size; x++)
 			{
 				for (int y = 0; y < size; y++)
 				{
 					for (int z = 0; z < size; z++)
 					{
-						_points[Volume.IndexFromCoord(x, y, z, size)] = volume.SamplePoint(x, y, z);
+						_points[Volume.IndexFromCoord(x, y, z, size)] = _volume.SamplePoint(x, y, z);
 					}
 				}
 			}
 		}
+		
 		public (Vector3, Vector3) OperationWorldBounds()
 		{
 			return (Vector3.negativeInfinity, Vector3.positiveInfinity);

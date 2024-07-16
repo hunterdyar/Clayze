@@ -1,3 +1,14 @@
-﻿fileFormatVersion: 2
+fileFormatVersion: 2
 guid: 9ec7217e50af4823a47a27337757fa93
-timeCreated: 1707002122
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences:
+  - _meshParent: {instanceID: 0}
+  - _material: {instanceID: 0}
+  - MarchingCompute: {fileID: 7200000, guid: e6675a5747764487687871eed95a316b, type: 3}
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
