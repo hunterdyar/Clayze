@@ -1,0 +1,151 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ebca9142b43e4823b3e8ae2601e5cc4e, type: 3}
+  m_Name: OpCollection
+  m_EditorClassIdentifier: 
+  ConnectionStatus: 3
+  _socketSettings:
+    connectionURL: wss://clayzeserver.hdyar.com:443/test
+    recentConnectionURLs:
+    - wss://clayzeserver.hdyar.com:443/test
+  localStatus: Stopped
+  reconnectionDelay: 30
+  _operations:
+  - rid: 6981885998156480547
+  - rid: 6981885998156480548
+  - rid: 6981885998156480549
+  - rid: 6981885998156480550
+  - rid: 6981885998156480551
+  - rid: 6981885998156480552
+  - rid: 6981885998156480553
+  - rid: 6981885998156480554
+  - rid: 6981885998156480555
+  - rid: 6981885998156480556
+  - rid: 6981885998156480557
+  - rid: 6981885998156480558
+  - rid: 6981885998156480559
+  - rid: 6981885998156480560
+  - rid: 6981885998156480561
+  - rid: 6981885998156480562
+  - rid: 6981885998156480563
+  - rid: 6981885998156480564
+  references:
+    version: 2
+    RefIds:
+    - rid: 6981885998156480547
+      type: {class: SphereOp, ns: Clayze.Marching.Operations, asm: ClayzeRuntime}
+      data:
+        _operationType: 0
+        _radius: 3
+        _center: {x: 2.273589, y: -0.24342561, z: 8}
+    - rid: 6981885998156480548
+      type: {class: SphereOp, ns: Clayze.Marching.Operations, asm: ClayzeRuntime}
+      data:
+        _operationType: 0
+        _radius: 3
+        _center: {x: 2.684892, y: -0.8702071, z: 3}
+    - rid: 6981885998156480549
+      type: {class: SphereOp, ns: Clayze.Marching.Operations, asm: ClayzeRuntime}
+      data:
+        _operationType: 0
+        _radius: 3
+        _center: {x: 3.397233, y: -0.2947588, z: -1}
+    - rid: 6981885998156480550
+      type: {class: SphereOp, ns: Clayze.Marching.Operations, asm: ClayzeRuntime}
+      data:
+        _operationType: 0
+        _radius: 3
+        _center: {x: 1.9028366, y: -1.6180367, z: -1}
+    - rid: 6981885998156480551
+      type: {class: SphereOp, ns: Clayze.Marching.Operations, asm: ClayzeRuntime}
+      data:
+        _operationType: 0
+        _radius: 3
+        _center: {x: 3.2856956, y: -0.4544648, z: -5}
+    - rid: 6981885998156480552
+      type: {class: SphereOp, ns: Clayze.Marching.Operations, asm: ClayzeRuntime}
+      data:
+        _operationType: 0
+        _radius: 3
+        _center: {x: 1.8724284, y: -0.8600668, z: -5}
+    - rid: 6981885998156480553
+      type: {class: SphereOp, ns: Clayze.Marching.Operations, asm: ClayzeRuntime}
+      data:
+        _operationType: 0
+        _radius: 3
+        _center: {x: 3.1006403, y: 0.90303576, z: -7}
+    - rid: 6981885998156480554
+      type: {class: SphereOp, ns: Clayze.Marching.Operations, asm: ClayzeRuntime}
+      data:
+        _operationType: 0
+        _radius: 3
+        _center: {x: 1.0784104, y: -0.53264105, z: 2}
+    - rid: 6981885998156480555
+      type: {class: SphereOp, ns: Clayze.Marching.Operations, asm: ClayzeRuntime}
+      data:
+        _operationType: 0
+        _radius: 3
+        _center: {x: 1.8228362, y: 1.3044282, z: 2}
+    - rid: 6981885998156480556
+      type: {class: SphereOp, ns: Clayze.Marching.Operations, asm: ClayzeRuntime}
+      data:
+        _operationType: 0
+        _radius: 3
+        _center: {x: -2.3675961, y: 0.92020476, z: 2}
+    - rid: 6981885998156480557
+      type: {class: SphereOp, ns: Clayze.Marching.Operations, asm: ClayzeRuntime}
+      data:
+        _operationType: 0
+        _radius: 3
+        _center: {x: 1.2009158, y: -0.07779276, z: -2}
+    - rid: 6981885998156480558
+      type: {class: SphereOp, ns: Clayze.Marching.Operations, asm: ClayzeRuntime}
+      data:
+        _operationType: 1
+        _radius: 2
+        _center: {x: 1.3850205, y: -0.04577422, z: -2}
+    - rid: 6981885998156480559
+      type: {class: SphereOp, ns: Clayze.Marching.Operations, asm: ClayzeRuntime}
+      data:
+        _operationType: 0
+        _radius: 3
+        _center: {x: 1.8228874, y: 0.084947586, z: -3}
+    - rid: 6981885998156480560
+      type: {class: SphereOp, ns: Clayze.Marching.Operations, asm: ClayzeRuntime}
+      data:
+        _operationType: 0
+        _radius: 3
+        _center: {x: 3.2627215, y: 0.25449818, z: -5}
+    - rid: 6981885998156480561
+      type: {class: SphereOp, ns: Clayze.Marching.Operations, asm: ClayzeRuntime}
+      data:
+        _operationType: 0
+        _radius: 3
+        _center: {x: 2.4753382, y: 0.0025351644, z: -3}
+    - rid: 6981885998156480562
+      type: {class: SphereOp, ns: Clayze.Marching.Operations, asm: ClayzeRuntime}
+      data:
+        _operationType: 1
+        _radius: 3
+        _center: {x: 1.7540061, y: -0.28245485, z: -1}
+    - rid: 6981885998156480563
+      type: {class: SphereOp, ns: Clayze.Marching.Operations, asm: ClayzeRuntime}
+      data:
+        _operationType: 0
+        _radius: 3
+        _center: {x: -3.120699, y: 0.044507086, z: -1}
+    - rid: 6981885998156480564
+      type: {class: SphereOp, ns: Clayze.Marching.Operations, asm: ClayzeRuntime}
+      data:
+        _operationType: 0
+        _radius: 3
+        _center: {x: -2.2183995, y: 0.15067297, z: -2}
