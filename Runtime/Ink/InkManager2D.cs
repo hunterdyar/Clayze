@@ -10,14 +10,14 @@ namespace Clayze.Ink
 	/// <summary>
 	/// InkManager collects all of the canvases - and their pen strokes - and manages sending to and from the server.
 	/// </summary>
-	public class InkManager : MonoBehaviour, IInkMessageHandler
+	public class InkManager2D : MonoBehaviour, IInkMessageHandler
 	{
 		//current canvas
 		//current input
 		public Action<InkCanvas> OnNewCanvas;
 		private Dictionary<byte,InkCanvas> _canvases;
 		[SerializeField] private SyncedPropertyCollection _propertyCollection;
-		private Dictionary<Stroke, List<InkPoint>> _addBuffer = new Dictionary<Stroke, List<InkPoint>>();
+		private Dictionary<Stroke2, List<InkPoint2>> _addBuffer = new Dictionary<Stroke2, List<InkPoint2>>();
 		private bool _canAdd = true;
 		private byte _lastPenID = 0;
 
@@ -119,7 +119,7 @@ namespace Clayze.Ink
 			var canvasID = data[1];
 			var penID = data[2];
 			int pointCount = (data.Length - 2) / 9;
-			InkPoint[] points = new InkPoint[pointCount];
+			InkPoint2[] points = new InkPoint2[pointCount];
 			if (TryGetCanvas(canvasID, out var c))
 			{
 				for (int i = 0; i < pointCount; i++)
@@ -128,7 +128,7 @@ namespace Clayze.Ink
 					var x = BitConverter.ToSingle(data,j);
 					var y = BitConverter.ToSingle(data, j + 4);
 					var w = data[j + 8];
-					points[i] = new InkPoint(x, y,w);
+					points[i] = new InkPoint2(x, y,w);
 				}
 
 				if (pointCount == 1)
@@ -162,7 +162,7 @@ namespace Clayze.Ink
 			_canAdd = true;
 		}
 
-		public void OnNewStrokeLocal(Stroke s)
+		public void OnNewStrokeLocal(Stroke2 s)
 		{
 			var data = new byte[19];
 			data[0] = (byte)MessageType.InkStart;
@@ -175,7 +175,7 @@ namespace Clayze.Ink
 			_propertyCollection.SendMessageRaw(data);
 		}
 
-		public void OnStrokeEndLocal(Stroke s)
+		public void OnStrokeEndLocal(Stroke2 s)
 		{
 			var data = new byte[3];
 			data[0] = (byte)MessageType.InkEnd;
@@ -188,15 +188,15 @@ namespace Clayze.Ink
 			}
 		}
 
-		public void OnPointAddLocal(Stroke s, InkPoint point)
+		public void OnPointAddLocal(Stroke2 s, InkPoint2 point2)
 		{
 			if (_addBuffer.ContainsKey(s))
 			{
-				_addBuffer[s].Add(point);
+				_addBuffer[s].Add(point2);
 			}
 			else
 			{
-				_addBuffer.Add(s,new List<InkPoint>(){point});
+				_addBuffer.Add(s,new List<InkPoint2>(){point2});
 			}
 			//add to a buffer and send once previous message is handshaked.... per stroke
 		}

@@ -1,15 +1,15 @@
-#if ENABLE_INPUT_SYSTEM
+﻿#if ENABLE_INPUT_SYSTEM
 using Clayze.Ink;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.Serialization;
 
-public class PenInput : MonoBehaviour
+public class PenInput3D : MonoBehaviour
 {
     private InkCanvas _currentCanvas;
-    private Stroke _currentStroke;
+    private Stroke3 _currentStroke;
     private byte _id;
 
-    private InkPoint NewPointAtCurrent => new InkPoint(Pen.current.position.x.value, Pen.current.position.y.value, GetCurrentPressure());
     [Header("Pen Style Configuration")]
     public Color PenColor = Color.black;
     public float PenThickness = 0.05f;
@@ -21,24 +21,19 @@ public class PenInput : MonoBehaviour
     public AnimationCurve PressureCurve = AnimationCurve.Linear(0, 0, 1, 1);
     //settings
     [Header("Pen Settings")]
-    [Tooltip("Distance pen must move in pen (pixel/screen/canvas) space beffore a new point is added.")]
-    [SerializeField] private float minRadius = 2;
+    [Tooltip("Distance pen must move in world space beffore a new point is added.")]
+    [SerializeField] private float minRadius = 0.1f;
     [Tooltip("Minimum time after previous point before a new point is added.")]
     [SerializeField] private float _minTime = (1f/50f);
     private float _lastAddTime = Mathf.Infinity;
     
+    [FormerlySerializedAs("_manager")]
     [Header("References")]
-    [SerializeField] private InkManager _manager;
+    [SerializeField] private InkManager3D manager;
 
     private void Start()
     {
-        //todo: wait until connected
-        if (!_manager.TryGetCanvas(0, out _currentCanvas))
-        {
-            _currentCanvas = _manager.CreateCanvas(0, Screen.width, Screen.height, 0);
-        }
-        
-       _id = _manager.GetUniquePenID();
+       _id = manager.GetUniquePenID();
     }
 
     byte GetCurrentPressure()
@@ -50,7 +45,7 @@ public class PenInput : MonoBehaviour
 
         var input = PressureCurve.Evaluate(Pen.current.pressure.value);
         var p = 1 - PressureControlPercentage + PressureControlPercentage * (input);
-        return Stroke.WidthByteFromFloat(p);
+        return Stroke2.WidthByteFromFloat(p);
     }
     // Update is called once per frame
     void Update()
@@ -77,7 +72,7 @@ public class PenInput : MonoBehaviour
                 _currentStroke = null;
             }
 
-            _currentStroke = _currentCanvas.StartStroke(_id, true, PenColor, PenThickness);
+            _currentStroke = manager.StartStroke(_id, true, PenColor, PenThickness);
         }
         
         //2/3 drag. (also first frame)
@@ -88,20 +83,23 @@ public class PenInput : MonoBehaviour
         {
             if (_lastAddTime >= _minTime)
             {
+                float d = 0;
                 if (_currentStroke.Points.Count > 1)
                 {
-                    if (InkPoint.Distance(_currentStroke.Points[^1], pen.position.value) < minRadius)
+                    d = InkPoint3.Distance(_currentStroke.Points[^1], PenToWorld());
+                    if (d < minRadius || d == 0)
                     {
+                        //don't add new point if we haven't moved enough.
                         goto PenRelease;
                     }
                 }
-                
-                _currentStroke.AddPoint(NewPointAtCurrent);
+
+                _currentStroke.AddPoint(NewPointAtCurrent());
                 _lastAddTime = 0;
             }
             else
             {
-                _currentStroke.UpdateLastPoint(NewPointAtCurrent);
+                _currentStroke.UpdateLastPoint(NewPointAtCurrent());
             }
         }
 
@@ -118,6 +116,18 @@ public class PenInput : MonoBehaviour
             }
         }
     }
+
+    private InkPoint3 NewPointAtCurrent()
+    {
+        var p = PenToWorld();
+        return new InkPoint3(p, GetCurrentPressure());
+    }
+
+    private Vector3 PenToWorld()
+    {
+       return Camera.main.ScreenToWorldPoint(new Vector3(Pen.current.position.x.value, Pen.current.position.y.value, 5));
+    }
+
 }
 
 #endif

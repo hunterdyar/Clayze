@@ -17,7 +17,7 @@ namespace Clayze.Ink.Viewer
 			_canvas.OnNewStroke += OnNewStroke;
 			gameObject.name = "Canvas " + _canvas.ID;
 			//todo: move this into a utility function in canvas.
-			_matrix = canvas.Manager.GetCanvasMatrix(canvas.ID);
+			_matrix = canvas.Manager2D.GetCanvasMatrix(canvas.ID);
 			if (_matrix != null)
 			{
 				_matrix.OnChange += OnMatrixChange;
@@ -31,7 +31,7 @@ namespace Clayze.Ink.Viewer
 		}
 		
 
-		private void OnNewStroke(Stroke s)
+		private void OnNewStroke(Stroke2 s)
 		{
 			var sv = Instantiate(_viewPrefab, transform);
 			sv.SetStroke(s);

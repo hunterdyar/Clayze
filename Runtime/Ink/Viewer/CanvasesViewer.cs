@@ -2,23 +2,24 @@
 using Clayze.Extensions;
 using SyncedProperty;
 using UnityEngine;
+using UnityEngine.Serialization;
 
 namespace Clayze.Ink.Viewer
 {
 	//todo: rename this
 	public class CanvasesViewer : MonoBehaviour
 	{
-		[SerializeField] private InkManager _inkManager;
+		[FormerlySerializedAs("_inkManager")] [SerializeField] private InkManager2D inkManager2D;
 		[SerializeField] private InkCanvasViewer _inkCanvasViewerPrefab;
 
 		private void OnEnable()
 		{
-			_inkManager.OnNewCanvas += OnNewCanvas;
+			inkManager2D.OnNewCanvas += OnNewCanvas;
 		}
 
 		private void OnDisable()
 		{
-			_inkManager.OnNewCanvas -= OnNewCanvas;
+			inkManager2D.OnNewCanvas -= OnNewCanvas;
 		}
 
 		private void OnNewCanvas(InkCanvas canvas)
