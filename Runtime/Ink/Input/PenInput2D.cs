@@ -1,4 +1,5 @@
 #if ENABLE_INPUT_SYSTEM
+using System;
 using Clayze.Ink;
 using UnityEngine;
 using UnityEngine.InputSystem;
@@ -6,6 +7,8 @@ using UnityEngine.Serialization;
 
 public class PenInput2D : MonoBehaviour
 {
+    public Action<InkCanvas> OnNewCanvas;
+    public InkCanvas CurrentCanvas => _currentCanvas;
     private InkCanvas _currentCanvas;
     private Stroke2 _currentStroke2;
     private byte _id;
@@ -27,22 +30,25 @@ public class PenInput2D : MonoBehaviour
     [Tooltip("Minimum time after previous point before a new point is added.")]
     [SerializeField] private float _minTime = (1f/50f);
     private float _lastAddTime = Mathf.Infinity;
-    
     [FormerlySerializedAs("_manager")]
     [Header("References")]
     [SerializeField] private InkManager2D manager2D;
 
     private void Start()
     {
-        //todo: wait until connected
-        if (!manager2D.TryGetCanvas(0, out _currentCanvas))
-        {
-            _currentCanvas = manager2D.CreateCanvas(0, Screen.width, Screen.height, 0);
-        }
-        
+        SetCanvas(0);
        _id = manager2D.GetUniquePenID();
     }
 
+    public void SetCanvas(byte canvasID)
+    {
+        //todo: wait until connected
+        if (!manager2D.TryGetCanvas(canvasID, out _currentCanvas))
+        {
+            _currentCanvas = manager2D.CreateCanvas(canvasID, Screen.width, Screen.height, 0);
+        }
+        OnNewCanvas?.Invoke(_currentCanvas);
+    }
     byte GetCurrentPressure()
     {
         if (PressureControlPercentage == 0)
