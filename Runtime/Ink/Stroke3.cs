@@ -52,6 +52,7 @@ namespace Clayze.Ink
 				if (d == 0)
 				{
 					Debug.LogWarning("Point added on top of previous point!");
+					return;
 				}
 				Points[^1].SetDistance(d);//does this work on real data or iterator variable?
 				point3.SetDistance(d);

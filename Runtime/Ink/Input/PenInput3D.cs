@@ -1,5 +1,7 @@
 ﻿#if ENABLE_INPUT_SYSTEM
 using Clayze.Ink;
+using SyncedProperty;
+using UnityEditor;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.Serialization;
@@ -10,8 +12,11 @@ public class PenInput3D : MonoBehaviour
     private Stroke3 _currentStroke;
     private byte _id;
 
-    [Header("Pen Style Configuration")]
+    [Header("Pen Style Configuration")] public bool UseSyncColor = true;
     public Color PenColor = Color.black;
+    public SyncColor PenSyncColor;
+    public Color GetPenColor() => UseSyncColor ? PenSyncColor.Value : PenColor;
+    
     public float PenThickness = 0.05f;
 
     [Tooltip("0, pen will always be 'pen thickness' width. Set to 1, this then the pressure controls the width as a percentage.")]
@@ -31,6 +36,7 @@ public class PenInput3D : MonoBehaviour
     [Header("References")]
     [SerializeField] private InkManager3D manager;
 
+    public bool UsePenTablet = true;
     private void Start()
     {
        _id = manager.GetUniquePenID();
@@ -51,6 +57,10 @@ public class PenInput3D : MonoBehaviour
     void Update()
     {
         _lastAddTime += Time.deltaTime;
+        if (!UsePenTablet)
+        {
+            return;
+        }
         if (Pen.current == null)
         {
             return;
@@ -72,7 +82,7 @@ public class PenInput3D : MonoBehaviour
                 _currentStroke = null;
             }
 
-            _currentStroke = manager.StartStroke(_id, true, PenColor, PenThickness);
+            _currentStroke = manager.StartStroke(_id, true, GetPenColor(), PenThickness);
         }
         
         //2/3 drag. (also first frame)
@@ -127,7 +137,6 @@ public class PenInput3D : MonoBehaviour
     {
        return Camera.main.ScreenToWorldPoint(new Vector3(Pen.current.position.x.value, Pen.current.position.y.value, 5));
     }
-
 }
 
 #endif
