@@ -141,7 +141,7 @@ namespace Clayze.Ink
 			var s = new Stroke3(this, pen, local, thickness, color);
 			_activeStrokes[pen] = s;
 
-			if (local)
+			if (local && _propertyCollection != null)
 			{
 				//send to server
 				var data = new byte[18];

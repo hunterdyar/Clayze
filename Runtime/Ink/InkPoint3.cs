@@ -72,7 +72,7 @@ namespace Clayze.Ink
 
 		public Vector3 GetVector3()
 		{
-			return new Vector3(x, y, x);
+			return new Vector3(x, y, z);
 		}
 	}
 		
