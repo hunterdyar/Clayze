@@ -1,6 +1,5 @@
 ﻿#if ENABLE_INPUT_SYSTEM
 using Clayze.Ink;
-using LookingGlass;
 using SyncedProperty;
 using UnityEditor;
 using UnityEngine;
@@ -34,13 +33,14 @@ public class PenInput3D : MonoBehaviour
     [Tooltip("Minimum time after previous point before a new point is added.")]
     [SerializeField] private float _minTime = (1f/50f);
     private float _lastAddTime = Mathf.Infinity;
-    [SerializeField] private Vector2 worldOffsetXY = Vector2.zero;
-    [SerializeField] private float worldScaleMultiplier = 1;
+
     
     [FormerlySerializedAs("_manager")]
     [Header("References")]
     [SerializeField] private InkManager3D manager;
 
+    [SerializeField] public bool DrawAtGameObjectPosition;
+    [SerializeField] public Transform DrawAtTransform;
     public bool UsePenTablet = true;
     private void Start()
     {
@@ -140,20 +140,15 @@ public class PenInput3D : MonoBehaviour
 
     public Vector3 PenToWorld()
     {
-        Vector2 normalizedPen = new Vector2(
-            Pen.current.position.x.value / Screen.width * HologramCamera.Instance.Calibration.screenW,
-            Pen.current.position.y.value / Screen.height *HologramCamera.Instance.Calibration.screenH /
-            HologramCamera.Instance.Calibration.ScreenAspect);
-        normalizedPen = normalizedPen / HologramCamera.Instance.Calibration.dpi;
-        // normalizedPen = normalizedPen * 2;
-        normalizedPen = normalizedPen - new Vector2(
-                            HologramCamera.Instance.Calibration.ScreenAspect *
-                            HologramCamera.Instance.CameraProperties.Size,
-                            HologramCamera.Instance.CameraProperties.Size);
-        normalizedPen = (normalizedPen - worldOffsetXY)*worldScaleMultiplier;
-      // var penCord = HologramCamera.Instance.SingleViewCamera.ScreenToWorldPoint(new Vector3(Pen.current.position.x.value, Pen.current.position.y.value,DrawDepth));
-       return new Vector3(normalizedPen.x, normalizedPen.y, DrawDepth);
-       //could draw-depth by a 0->1 relationship between near and far clip plane?
+        if (DrawAtGameObjectPosition)
+        {
+            return DrawAtTransform.position;
+        }
+        else
+        {
+            return Camera.main.ScreenToWorldPoint(new Vector3(Pen.current.position.x.value, Pen.current.position.y.value, DrawDepth));
+        }
+       
     }
 }
 
