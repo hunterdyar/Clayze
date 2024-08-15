@@ -140,7 +140,6 @@ public class PenInput3D : MonoBehaviour
 
     public Vector3 PenToWorld()
     {
-        Debug.Log(HologramCamera.Instance.Calibration.ScreenAspect);
         Vector2 normalizedPen = new Vector2(
             Pen.current.position.x.value / Screen.width * HologramCamera.Instance.Calibration.screenW,
             Pen.current.position.y.value / Screen.height *HologramCamera.Instance.Calibration.screenH /
