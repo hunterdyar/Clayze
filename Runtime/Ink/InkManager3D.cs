@@ -18,6 +18,10 @@ namespace Clayze.Ink
 		private byte _lastPenID = 0;
 		private Stroke3[] _activeStrokes = new Stroke3[255];
 
+		private void Start()
+		{
+			_propertyCollection.SetInkMessageHandler(this);
+		}
 
 		public byte GetUniquePenID()
 		{
